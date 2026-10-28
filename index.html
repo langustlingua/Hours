@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#10192e" />
+  <meta name="description" content="Удобный перевод времени между городами России и всеми 11 часовыми поясами." />
+  <title>Часовые пояса России — перевод времени</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2a42;
+      --muted: #6b778b;
+      --line: #e3e8f2;
+      --background: #f4f6fb;
+      --accent: #4f63df;
+      --accent-deep: #3547b9;
+      --accent-light: #edf0ff;
+      --mint: #dff8ef;
+      --mint-ink: #176e52;
+      --white: #ffffff;
+      --shadow: 0 14px 38px rgba(24, 35, 64, .075);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--background); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; line-height: 1.5; }
+    button, select, input { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(79,99,223,.3); outline-offset: 2px; }
+    .top { background: radial-gradient(900px 380px at 94% -30%, #364a82 0%, transparent 74%), linear-gradient(130deg, #10192e, #192743); color: #fff; padding: 46px 24px 132px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .19em; font-size: 11px; font-weight: 800; color: #aab8ec; }
+    h1 { font-size: clamp(30px, 5vw, 49px); line-height: 1.12; font-weight: 770; letter-spacing: -.035em; margin: 14px 0 14px; }
+    .intro { color: #c4cde0; font-size: 16px; max-width: 690px; margin: 0; }
+    main { margin-top: -87px; padding: 0 24px 48px; position: relative; }
+    .converter { border-radius: 23px; background: var(--white); box-shadow: 0 19px 50px rgba(12, 23, 52, .17); padding: 25px; }
+    .converter-heading { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: space-between; align-items: center; margin-bottom: 21px; }
+    .converter-heading h2, .section-head h2 { margin: 0; font-size: 21px; letter-spacing: -.02em; }
+    .tip { font-size: 12px; color: var(--muted); }
+    .pair { display: grid; grid-template-columns: minmax(0,1fr) 56px minmax(0,1fr); gap: 10px; align-items: center; }
+    .city-panel { min-width: 0; border: 1.5px solid var(--line); background: #fff; padding: 21px; border-radius: 17px; transition: border-color .2s ease, box-shadow .2s ease; }
+    .city-panel.active { border-color: #8895f2; box-shadow: inset 0 0 0 1px #8895f2; background: #fbfcff; }
+    .field-label { display: block; font-weight: 750; font-size: 12px; color: var(--muted); letter-spacing: .035em; text-transform: uppercase; margin-bottom: 8px; }
+    select { width: 100%; background: #fff; border: 1px solid #dce3f0; height: 45px; border-radius: 10px; color: var(--ink); padding: 0 12px; font-weight: 720; }
+    optgroup { font-style: normal; }
+    .datetime { display: grid; grid-template-columns: 1fr 130px; gap: 9px; margin-top: 18px; }
+    .datetime input { width: 100%; min-width: 0; height: 48px; padding: 0 10px; border: 1px solid #dce3f0; border-radius: 10px; background: #fff; color: var(--ink); font-size: 16px; }
+    .city-panel.active .datetime input { background: #fff; }
+    .time-input { font-size: 23px !important; font-weight: 790; letter-spacing: -.02em; }
+    .panel-foot { min-height: 28px; padding-top: 12px; font-size: 12px; font-weight: 650; color: var(--muted); }
+    .pill { display: inline-block; border-radius: 100px; padding: 5px 10px; font-size: 12px; font-weight: 740; background: var(--mint); color: var(--mint-ink); }
+    .pill.normal { background: var(--accent-light); color: var(--accent-deep); }
+    .switch-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .swap { width: 48px; height: 48px; border-radius: 50%; border: 1px solid #d9e0f0; background: #fff; color: var(--accent-deep); box-shadow: 0 7px 19px rgba(37,53,91,.1); font-size: 26px; line-height: 1; }
+    .swap:hover { background: var(--accent-light); }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin: 22px 0 0; }
+    .action-btn { min-height: 40px; background: #fff; border: 1px solid #dbe1ef; color: #344369; font-weight: 710; font-size: 13px; border-radius: 10px; padding: 9px 15px; }
+    .action-btn:hover { background: #f5f7ff; border-color: #bfc9e9; }
+    .action-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .action-btn.primary:hover { background: var(--accent-deep); }
+    .result { margin-top: 17px; display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; border: 1px solid #d9defe; background: linear-gradient(100deg, #eff1ff, #f8faff); padding: 16px 20px; border-radius: 14px; }
+    .result-label { font-size: 12px; color: #66729b; font-weight: 750; text-transform: uppercase; letter-spacing: .055em; }
+    .result-text { font-weight: 820; font-size: clamp(17px, 2.5vw, 24px); letter-spacing: -.025em; margin-top: 3px; }
+    .result-sub { color: #566585; font-size: 13px; margin-top: 3px; }
+    .difference { color: #3d4d9c; background: #e0e5ff; border-radius: 11px; padding: 11px 13px; font-size: 13px; font-weight: 780; white-space: nowrap; }
+    .quick { margin: 32px 0 34px; }
+    .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; margin: 0 0 15px; }
+    .section-description { color: var(--muted); font-size: 13px; }
+    .clocks { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+    .clock { border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); border-radius: 15px; padding: 17px 20px; }
+    .clock-city { font-size: 13px; color: var(--muted); font-weight: 730; }
+    .clock-time { font-size: clamp(26px,3.4vw,37px); font-weight: 790; letter-spacing: -.035em; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
+    .clock-date { font-size: 12px; color: #8190a6; }
+    .zone-card { border-radius: 18px; box-shadow: var(--shadow); background: #fff; border: 1px solid var(--line); overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 610px; }
+    thead th { background: #f7f9fd; border-bottom: 1px solid #e3e8f2; color: #77839a; padding: 12px 19px; font-weight: 730; font-size: 12px; text-transform: uppercase; letter-spacing: .035em; }
+    tbody td { padding: 14px 19px; border-bottom: 1px solid #edf0f6; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fbfcff; }
+    tbody tr.highlight { background: #f4f6ff; }
+    .zone-city { font-weight: 760; font-size: 15px; }
+    .zone-more { display: block; margin-top: 2px; font-size: 12px; color: #8a96a9; }
+    .zone-offset { background: #f0f3f8; color: #5c6d88; padding: 6px 9px; border-radius: 7px; font-size: 12px; font-weight: 780; white-space: nowrap; }
+    .zone-time { font-weight: 830; font-size: 22px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; white-space: nowrap; }
+    .zone-date { font-size: 12px; color: #77839a; }
+    .date-tag { margin-left: 8px; background: #fff0da; color: #a05b00; padding: 4px 7px; border-radius: 7px; font-size: 11px; font-weight: 770; white-space: nowrap; }
+    .date-tag.next { background: #dcf6ec; color: #18764f; }
+    .note { margin-top: 15px; font-size: 12px; line-height: 1.65; color: #718097; }
+    footer { max-width: 1100px; margin: 30px auto 0; font-size: 12px; color: #99a3b4; text-align: center; }
+    @media (max-width: 760px) {
+      .top { padding: 34px 18px 119px; }
+      main { padding: 0 15px 38px; }
+      .converter { padding: 18px; }
+      .pair { grid-template-columns: 1fr; gap: 9px; }
+      .switch-wrap { flex-direction: row; }
+      .swap { width: 42px; height: 42px; transform: rotate(90deg); }
+      .city-panel { padding: 16px; }
+      .clocks { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      table { min-width: 0; width: 100%; }
+      thead { display: none; }
+      tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 2px 6px; padding: 13px 16px; border-bottom: 1px solid #edf0f6; }
+      tbody tr:last-child { border-bottom: 0; }
+      tbody td { border: 0; padding: 0; }
+      tbody td:nth-child(1) { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+      tbody td:nth-child(2) { grid-column: 1; grid-row: 3; padding-top: 4px; }
+      tbody td:nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
+      tbody td:nth-child(4) { grid-column: 2; grid-row: 2 / span 2; text-align: right; align-self: start; }
+      .zone-time { font-size: 25px; }
+      .zone-city { font-size: 14px; }
+      .zone-more { font-size: 11px; }
+      .date-tag { display: inline-block; margin: 3px 0 0 3px; }
+    }
+    @media (max-width: 390px) {
+      .datetime { grid-template-columns: 1fr 114px; gap: 6px; }
+      .datetime input { font-size: 14px; padding: 0 7px; }
+      .time-input { font-size: 19px !important; }
+      .clocks { gap: 8px; }
+      .clock { padding: 14px; }
+      .clock-time { font-size: 28px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="container">
+      <div class="eyebrow">Россия · 11 часовых поясов</div>
+      <h1>Который час в другом городе?</h1>
+      <p class="intro">Введите дату и время в одном городе — получите точное время в другом и сразу во всех часовых поясах России. Можно вводить время с любой стороны.</p>
+    </div>
+  </header>
+  <main class="container">
+    <section class="converter" aria-label="Перевод времени">
+      <div class="converter-heading">
+        <h2>Перевод времени</h2>
+        <span class="tip">Меняйте дату или время в любом из двух полей</span>
+      </div>
+      <div class="pair">
+        <div class="city-panel active" id="panelA">
+          <label class="field-label" for="cityA">Город 1</label>
+          <select id="cityA" aria-label="Первый город"></select>
+          <div class="datetime">
+            <div><label class="field-label" for="dateA">Дата</label><input id="dateA" type="date" /></div>
+            <div><label class="field-label" for="timeA">Время</label><input id="timeA" class="time-input" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="ЧЧ:ММ" aria-label="Время в первом городе, 24-часовой формат" /></div>
+          </div>
+          <div class="panel-foot" id="footA">Исходное время</div>
+        </div>
+        <div class="switch-wrap"><button id="swap" class="swap" type="button" aria-label="Поменять города местами" title="Поменять города местами">⇄</button></div>
+        <div class="city-panel" id="panelB">
+          <label class="field-label" for="cityB">Город 2</label>
+          <select id="cityB" aria-label="Второй город"></select>
+          <div class="datetime">
+            <div><label class="field-label" for="dateB">Дата</label><input id="dateB" type="date" /></div>
+            <div><label class="field-label" for="timeB">Время</label><input id="timeB" class="time-input" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="ЧЧ:ММ" aria-label="Время во втором городе, 24-часовой формат" /></div>
+          </div>
+          <div class="panel-foot" id="footB">Время в другом городе</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="action-btn primary" id="example">Пример: Владивосток, 04:00</button>
+        <button type="button" class="action-btn" id="setNow">Поставить текущее время</button>
+        <button type="button" class="action-btn" id="copy">Скопировать перевод</button>
+      </div>
+      <div class="result" aria-live="polite">
+        <div>
+          <div class="result-label">Результат перевода</div>
+          <div class="result-text" id="resultText">04:00 Владивосток → 22:00 Самара</div>
+          <div class="result-sub" id="resultSub">В Самаре — предыдущий день</div>
+        </div>
+        <div class="difference" id="delta">Разница: −6 часов</div>
+      </div>
+    </section>
+
+    <section class="quick" aria-label="Время сейчас">
+      <div class="section-head"><h2>Сейчас в городах</h2><span class="section-description">Живые часы · обновляются автоматически</span></div>
+      <div class="clocks" id="clocks"></div>
+    </section>
+
+    <section aria-label="Все часовые пояса России">
+      <div class="section-head"><h2>Все 11 часовых поясов</h2><span class="section-description">Для выбранных даты и момента времени</span></div>
+      <div class="zone-card"><div class="table-wrap">
+        <table>
+          <thead><tr><th>Город / пояс</th><th>UTC</th><th>Время</th><th>Дата</th></tr></thead>
+          <tbody id="zoneRows"></tbody>
+        </table>
+      </div></div>
+      <div class="note">Разница в датах учитывается автоматически: «накануне» означает предыдущий календарный день, «следующий день» — следующий. Для исторических дат используются данные часовых зон браузера; при переводе времени в годы с сезонными или законодательными изменениями возможны неоднозначные местные часы. Страница работает без интернета и не передаёт введённые данные на сервер.</div>
+    </section>
+    <footer>Часовые пояса России · Удобный перевод времени</footer>
+  </main>
+  <script>
+    'use strict';
+    const zones = [
+      { city: 'Калининград', tz: 'Europe/Kaliningrad', alt: 'Калининградская область', offset: 2 },
+      { city: 'Москва', tz: 'Europe/Moscow', alt: 'Санкт-Петербург, Казань, Смоленск', offset: 3 },
+      { city: 'Самара', tz: 'Europe/Samara', alt: 'Тольятти, Саратов, Ульяновск', offset: 4 },
+      { city: 'Екатеринбург', tz: 'Asia/Yekaterinburg', alt: 'Челябинск, Уфа, Пермь, Тюмень', offset: 5 },
+      { city: 'Омск', tz: 'Asia/Omsk', alt: 'Омская область', offset: 6 },
+      { city: 'Красноярск', tz: 'Asia/Krasnoyarsk', alt: 'Новосибирск, Томск, Барнаул', offset: 7 },
+      { city: 'Иркутск', tz: 'Asia/Irkutsk', alt: 'Улан-Удэ', offset: 8 },
+      { city: 'Якутск', tz: 'Asia/Yakutsk', alt: 'Чита, Благовещенск', offset: 9 },
+      { city: 'Владивосток', tz: 'Asia/Vladivostok', alt: 'Хабаровск, Уссурийск', offset: 10 },
+      { city: 'Магадан', tz: 'Asia/Magadan', alt: 'Южно-Сахалинск', offset: 11 },
+      { city: 'Петропавловск-Камчатский', tz: 'Asia/Kamchatka', alt: 'Анадырь', offset: 12 }
+    ];
+    const cities = [
+      ['Калининград', 'Europe/Kaliningrad', 2],
+      ['Москва', 'Europe/Moscow', 3], ['Санкт-Петербург', 'Europe/Moscow', 3],
+      ['Казань', 'Europe/Moscow', 3], ['Смоленск', 'Europe/Moscow', 3],
+      ['Нижний Новгород', 'Europe/Moscow', 3], ['Краснодар', 'Europe/Moscow', 3],
+      ['Ростов-на-Дону', 'Europe/Moscow', 3], ['Волгоград', 'Europe/Volgograd', 3],
+      ['Самара', 'Europe/Samara', 4], ['Тольятти', 'Europe/Samara', 4],
+      ['Саратов', 'Europe/Saratov', 4], ['Ульяновск', 'Europe/Ulyanovsk', 4],
+      ['Астрахань', 'Europe/Astrakhan', 4],
+      ['Екатеринбург', 'Asia/Yekaterinburg', 5], ['Челябинск', 'Asia/Yekaterinburg', 5],
+      ['Уфа', 'Asia/Yekaterinburg', 5], ['Пермь', 'Asia/Yekaterinburg', 5],
+      ['Тюмень', 'Asia/Yekaterinburg', 5], ['Оренбург', 'Asia/Yekaterinburg', 5],
+      ['Омск', 'Asia/Omsk', 6],
+      ['Красноярск', 'Asia/Krasnoyarsk', 7], ['Новосибирск', 'Asia/Novosibirsk', 7],
+      ['Томск', 'Asia/Tomsk', 7], ['Барнаул', 'Asia/Barnaul', 7],
+      ['Кемерово', 'Asia/Novokuznetsk', 7],
+      ['Иркутск', 'Asia/Irkutsk', 8], ['Улан-Удэ', 'Asia/Irkutsk', 8],
+      ['Якутск', 'Asia/Yakutsk', 9], ['Чита', 'Asia/Chita', 9],
+      ['Благовещенск', 'Asia/Yakutsk', 9],
+      ['Владивосток', 'Asia/Vladivostok', 10], ['Хабаровск', 'Asia/Vladivostok', 10],
+      ['Уссурийск', 'Asia/Vladivostok', 10],
+      ['Магадан', 'Asia/Magadan', 11], ['Южно-Сахалинск', 'Asia/Sakhalin', 11],
+      ['Петропавловск-Камчатский', 'Asia/Kamchatka', 12], ['Анадырь', 'Asia/Anadyr', 12]
+    ].map(([name, tz, offset]) => ({ name, tz, offset }));
+
+    const $ = (id) => document.getElementById(id);
+    const formatCache = new Map();
+    function getParts(instant, tz) {
+      let f = formatCache.get(tz);
+      if (!f) {
+        f = new Intl.DateTimeFormat('en-GB', {
+          timeZone: tz, calendar: 'gregory', numberingSystem: 'latn',
+          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit',
+          minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        });
+        formatCache.set(tz, f);
+      }
+      const p = Object.fromEntries(f.formatToParts(instant).filter(x => x.type !== 'literal').map(x => [x.type, x.value]));
+      return { year: +p.year, month: +p.month, day: +p.day, hour: +p.hour, minute: +p.minute, second: +p.second };
+    }
+    const pad = v => String(v).padStart(2, '0');
+    function asIsoDate(p) { return `${p.year}-${pad(p.month)}-${pad(p.day)}`; }
+    function asTime(p) { return `${pad(p.hour)}:${pad(p.minute)}`; }
+    function utcFromWall(date, time, tz) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time)) return null;
+      const [y, mo, day] = date.split('-').map(Number);
+      const [hour, minute] = time.split(':').map(Number);
+      const intended = Date.UTC(y, mo - 1, day, hour, minute, 0);
+      if (!Number.isFinite(intended)) return null;
+      let guess = intended;
+      for (let i = 0; i < 5; i++) {
+        const x = getParts(guess, tz);
+        const wallAsUtc = Date.UTC(x.year, x.month - 1, x.day, x.hour, x.minute, x.second);
+        const correction = intended - wallAsUtc;
+        if (Math.abs(correction) < 1000) break;
+        guess += correction;
+      }
+      return new Date(guess);
+    }
+    function zoneOffsetMinutes(instant, tz) {
+      const p = getParts(instant, tz);
+      const wallAsUtc = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second);
+      const t = Math.floor(instant.getTime() / 1000) * 1000;
+      return Math.round((wallAsUtc - t) / 60000);
+    }
+    function formatUtc(minutes) {
+      const sign = minutes >= 0 ? '+' : '−';
+      const abs = Math.abs(minutes);
+      return `UTC${sign}${Math.floor(abs / 60)}${abs % 60 ? ':' + pad(abs % 60) : ''}`;
+    }
+    function formatDifference(minutes) {
+      if (!minutes) return '0 часов';
+      const abs = Math.abs(minutes);
+      const h = Math.floor(abs / 60), m = abs % 60;
+      const n = h % 100;
+      const suffix = n >= 11 && n <= 14 ? 'часов' : h % 10 === 1 ? 'час' : h % 10 >= 2 && h % 10 <= 4 ? 'часа' : 'часов';
+      return (minutes > 0 ? '+' : '−') + `${h} ${suffix}` + (m ? ` ${m} мин` : '');
+    }
+    function dayDifference(a, b) {
+      return Math.round((Date.UTC(b.year, b.month - 1, b.day) - Date.UTC(a.year, a.month - 1, a.day)) / 86400000);
+    }
+    function dayNote(n) {
+      if (n === -1) return 'накануне';
+      if (n === 1) return 'следующий день';
+      if (n < -1) return `${Math.abs(n)} дня ранее`;
+      if (n > 1) return `${n} дня позже`;
+      return 'тот же день';
+    }
+    const ruDateFmt = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' });
+    function readableDate(p) { return ruDateFmt.format(new Date(Date.UTC(p.year, p.month - 1, p.day, 12))); }
+    function cityFor(side) { return cities[+$(side === 'A' ? 'cityA' : 'cityB').value]; }
+    function fillSelect(id) {
+      const select = $(id);
+      zones.forEach(z => {
+        const group = document.createElement('optgroup');
+        group.label = `UTC+${z.offset} · ${z.city}`;
+        cities.forEach((c, index) => {
+          if (c.offset !== z.offset) return;
+          const option = document.createElement('option');
+          option.value = String(index);
+          option.textContent = c.name;
+          group.appendChild(option);
+        });
+        select.appendChild(group);
+      });
+    }
+    fillSelect('cityA');
+    fillSelect('cityB');
+    function chooseCity(id, name) {
+      const index = cities.findIndex(c => c.name === name);
+      $(id).value = String(index);
+    }
+    let active = 'A';
+    let lastInstant = null;
+    function displayError(message) {
+      $('resultText').textContent = message;
+      $('resultSub').textContent = 'Проверьте дату и время.';
+      $('delta').textContent = '—';
+    }
+    function recalculate(side = active) {
+      active = side;
+      const other = side === 'A' ? 'B' : 'A';
+      $('panelA').classList.toggle('active', side === 'A');
+      $('panelB').classList.toggle('active', side === 'B');
+      $('footA').textContent = side === 'A' ? 'Исходное время' : 'Время в другом городе';
+      $('footB').textContent = side === 'B' ? 'Исходное время' : 'Время в другом городе';
+      const from = cityFor(side), to = cityFor(other);
+      const fromDate = $('date' + side).value, fromTime = $('time' + side).value;
+      if (!from || !to || !fromDate || !fromTime) { displayError('Заполните дату и время'); return; }
+      const instant = utcFromWall(fromDate, fromTime, from.tz);
+      if (!instant || !Number.isFinite(instant.getTime())) { displayError('Неверная дата или время'); return; }
+      lastInstant = instant;
+      const tp = getParts(instant, to.tz);
+      $('date' + other).value = asIsoDate(tp);
+      $('time' + other).value = asTime(tp);
+      const dayDelta = dayDifference(getParts(instant, from.tz), tp);
+      $('resultText').textContent = `${fromTime} ${from.name} → ${asTime(tp)} ${to.name}`;
+      $('resultSub').textContent = `${readableDate(tp)} в городе ${to.name} · ${dayNote(dayDelta)}`;
+      const diff = zoneOffsetMinutes(instant, to.tz) - zoneOffsetMinutes(instant, from.tz);
+      $('delta').textContent = `Разница: ${formatDifference(diff)}`;
+      renderZones(instant, side);
+    }
+    function renderZones(instant, side) {
+      const base = getParts(instant, cityFor(side).tz);
+      const rows = $('zoneRows');
+      rows.replaceChildren();
+      const fromOffset = zoneOffsetMinutes(instant, cityFor(side).tz);
+      zones.forEach(z => {
+        const p = getParts(instant, z.tz);
+        const dayDiff = dayDifference(base, p);
+        const row = document.createElement('tr');
+        const highlight = z.tz === cityFor('A').tz || z.tz === cityFor('B').tz;
+        if (highlight) row.classList.add('highlight');
+        const city = document.createElement('td');
+        const title = document.createElement('div');
+        title.className = 'zone-city'; title.textContent = z.city;
+        const alt = document.createElement('span');
+        alt.className = 'zone-more'; alt.textContent = z.alt;
+        city.append(title, alt);
+        const off = document.createElement('td');
+        const offsetSpan = document.createElement('span');
+        offsetSpan.className = 'zone-offset'; offsetSpan.textContent = formatUtc(zoneOffsetMinutes(instant, z.tz));
+        off.appendChild(offsetSpan);
+        const time = document.createElement('td');
+        const tm = document.createElement('span'); tm.className = 'zone-time'; tm.textContent = asTime(p);
+        time.appendChild(tm);
+        const date = document.createElement('td');
+        const dt = document.createElement('span'); dt.className = 'zone-date'; dt.textContent = readableDate(p);
+        date.appendChild(dt);
+        if (dayDiff !== 0) {
+          const tag = document.createElement('span');
+          tag.className = 'date-tag' + (dayDiff > 0 ? ' next' : '');
+          tag.textContent = dayNote(dayDiff);
+          date.appendChild(tag);
+        }
+        rows.appendChild(row);
+        row.append(city, off, time, date);
+        row.title = `Относительно исходного города: ${formatDifference(zoneOffsetMinutes(instant, z.tz) - fromOffset)}`;
+      });
+    }
+    function nowCity(side = active) {
+      const parts = getParts(new Date(), cityFor(side).tz);
+      $('date' + side).value = asIsoDate(parts);
+      $('time' + side).value = asTime(parts);
+      recalculate(side);
+    }
+    function showExample() {
+      chooseCity('cityA', 'Владивосток');
+      chooseCity('cityB', 'Самара');
+      $('dateA').value = asIsoDate(getParts(new Date(), 'Asia/Vladivostok'));
+      $('timeA').value = '04:00';
+      recalculate('A');
+    }
+    function normalizeTimeInput(value, onBlur = false) {
+      let v = value.trim();
+      if (/^\d{4}$/.test(v) || (onBlur && /^\d{3}$/.test(v))) v = v.padStart(4, '0').replace(/^(\d{2})(\d{2})$/, '$1:$2');
+      else if (/^\d:\d{2}$/.test(v)) v = '0' + v;
+      return v;
+    }
+    ['A', 'B'].forEach(side => {
+      $('date' + side).addEventListener('input', () => recalculate(side));
+      const input = $('time' + side);
+      input.addEventListener('input', () => {
+        input.value = normalizeTimeInput(input.value);
+        const ok = /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(input.value);
+        input.setAttribute('aria-invalid', String(!ok));
+        if (ok) recalculate(side);
+      });
+      input.addEventListener('change', () => {
+        input.value = normalizeTimeInput(input.value, true);
+        recalculate(side);
+      });
+      $('city' + side).addEventListener('change', () => recalculate(active === side ? side : active));
+    });
+    $('swap').addEventListener('click', () => {
+      for (const part of ['city', 'date', 'time']) {
+        const a = $(part + 'A'), b = $(part + 'B');
+        [a.value, b.value] = [b.value, a.value];
+      }
+      recalculate(active === 'A' ? 'B' : 'A');
+    });
+    $('example').addEventListener('click', showExample);
+    $('setNow').addEventListener('click', () => nowCity(active));
+    $('copy').addEventListener('click', async () => {
+      const from = cityFor(active);
+      const to = cityFor(active === 'A' ? 'B' : 'A');
+      const other = active === 'A' ? 'B' : 'A';
+      const message = `${$('date' + active).value} ${$('time' + active).value} (${from.name}) = ${$('date' + other).value} ${$('time' + other).value} (${to.name}).`;
+      try {
+        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(message);
+        else {
+          const temp = document.createElement('textarea');
+          temp.value = message; temp.style.position = 'fixed'; temp.style.opacity = '0';
+          document.body.appendChild(temp); temp.select();
+          const ok = document.execCommand('copy'); temp.remove();
+          if (!ok) throw new Error('Copy unavailable');
+        }
+        const btn = $('copy'), label = btn.textContent;
+        btn.textContent = '✓ Скопировано';
+        setTimeout(() => { btn.textContent = label; }, 1700);
+      } catch (_) { window.prompt('Скопируйте результат:', message); }
+    });
+    const featured = [
+      ['Москва', 'Europe/Moscow'], ['Самара', 'Europe/Samara'],
+      ['Екатеринбург', 'Asia/Yekaterinburg'], ['Владивосток', 'Asia/Vladivostok']
+    ];
+    featured.forEach(([name]) => {
+      const card = document.createElement('article'); card.className = 'clock';
+      const city = document.createElement('div'); city.className = 'clock-city'; city.textContent = name;
+      const time = document.createElement('div'); time.className = 'clock-time'; time.textContent = '--:--';
+      const date = document.createElement('div'); date.className = 'clock-date'; date.textContent = '—';
+      card.append(city, time, date); $('clocks').appendChild(card);
+    });
+    function tick() {
+      const instant = new Date();
+      const elements = $('clocks').children;
+      featured.forEach(([name, tz], i) => {
+        const p = getParts(instant, tz);
+        elements[i].children[1].textContent = asTime(p);
+        elements[i].children[2].textContent = readableDate(p) + ' · ' + formatUtc(zoneOffsetMinutes(instant, tz));
+      });
+    }
+    showExample();
+    tick();
+    setInterval(tick, 15000);
+  </script>
+</body>
+</html>
