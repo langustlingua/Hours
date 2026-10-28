@@ -1,195 +1,227 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#10192e" />
-  <meta name="description" content="Удобный перевод времени между городами России и всеми 11 часовыми поясами." />
-  <title>Часовые пояса России — перевод времени</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #1d2a42;
-      --muted: #6b778b;
-      --line: #e3e8f2;
-      --background: #f4f6fb;
-      --accent: #4f63df;
-      --accent-deep: #3547b9;
-      --accent-light: #edf0ff;
-      --mint: #dff8ef;
-      --mint-ink: #176e52;
-      --white: #ffffff;
-      --shadow: 0 14px 38px rgba(24, 35, 64, .075);
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; background: var(--background); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; line-height: 1.5; }
-    button, select, input { font: inherit; }
-    button { cursor: pointer; }
-    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(79,99,223,.3); outline-offset: 2px; }
-    .top { background: radial-gradient(900px 380px at 94% -30%, #364a82 0%, transparent 74%), linear-gradient(130deg, #10192e, #192743); color: #fff; padding: 46px 24px 132px; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    .eyebrow { text-transform: uppercase; letter-spacing: .19em; font-size: 11px; font-weight: 800; color: #aab8ec; }
-    h1 { font-size: clamp(30px, 5vw, 49px); line-height: 1.12; font-weight: 770; letter-spacing: -.035em; margin: 14px 0 14px; }
-    .intro { color: #c4cde0; font-size: 16px; max-width: 690px; margin: 0; }
-    main { margin-top: -87px; padding: 0 24px 48px; position: relative; }
-    .converter { border-radius: 23px; background: var(--white); box-shadow: 0 19px 50px rgba(12, 23, 52, .17); padding: 25px; }
-    .converter-heading { display: flex; flex-wrap: wrap; gap: 8px 14px; justify-content: space-between; align-items: center; margin-bottom: 21px; }
-    .converter-heading h2, .section-head h2 { margin: 0; font-size: 21px; letter-spacing: -.02em; }
-    .tip { font-size: 12px; color: var(--muted); }
-    .pair { display: grid; grid-template-columns: minmax(0,1fr) 56px minmax(0,1fr); gap: 10px; align-items: center; }
-    .city-panel { min-width: 0; border: 1.5px solid var(--line); background: #fff; padding: 21px; border-radius: 17px; transition: border-color .2s ease, box-shadow .2s ease; }
-    .city-panel.active { border-color: #8895f2; box-shadow: inset 0 0 0 1px #8895f2; background: #fbfcff; }
-    .field-label { display: block; font-weight: 750; font-size: 12px; color: var(--muted); letter-spacing: .035em; text-transform: uppercase; margin-bottom: 8px; }
-    select { width: 100%; background: #fff; border: 1px solid #dce3f0; height: 45px; border-radius: 10px; color: var(--ink); padding: 0 12px; font-weight: 720; }
-    optgroup { font-style: normal; }
-    .datetime { display: grid; grid-template-columns: 1fr 130px; gap: 9px; margin-top: 18px; }
-    .datetime input { width: 100%; min-width: 0; height: 48px; padding: 0 10px; border: 1px solid #dce3f0; border-radius: 10px; background: #fff; color: var(--ink); font-size: 16px; }
-    .city-panel.active .datetime input { background: #fff; }
-    .time-input { font-size: 23px !important; font-weight: 790; letter-spacing: -.02em; }
-    .panel-foot { min-height: 28px; padding-top: 12px; font-size: 12px; font-weight: 650; color: var(--muted); }
-    .pill { display: inline-block; border-radius: 100px; padding: 5px 10px; font-size: 12px; font-weight: 740; background: var(--mint); color: var(--mint-ink); }
-    .pill.normal { background: var(--accent-light); color: var(--accent-deep); }
-    .switch-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .swap { width: 48px; height: 48px; border-radius: 50%; border: 1px solid #d9e0f0; background: #fff; color: var(--accent-deep); box-shadow: 0 7px 19px rgba(37,53,91,.1); font-size: 26px; line-height: 1; }
-    .swap:hover { background: var(--accent-light); }
-    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin: 22px 0 0; }
-    .action-btn { min-height: 40px; background: #fff; border: 1px solid #dbe1ef; color: #344369; font-weight: 710; font-size: 13px; border-radius: 10px; padding: 9px 15px; }
-    .action-btn:hover { background: #f5f7ff; border-color: #bfc9e9; }
-    .action-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .action-btn.primary:hover { background: var(--accent-deep); }
-    .result { margin-top: 17px; display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; border: 1px solid #d9defe; background: linear-gradient(100deg, #eff1ff, #f8faff); padding: 16px 20px; border-radius: 14px; }
-    .result-label { font-size: 12px; color: #66729b; font-weight: 750; text-transform: uppercase; letter-spacing: .055em; }
-    .result-text { font-weight: 820; font-size: clamp(17px, 2.5vw, 24px); letter-spacing: -.025em; margin-top: 3px; }
-    .result-sub { color: #566585; font-size: 13px; margin-top: 3px; }
-    .difference { color: #3d4d9c; background: #e0e5ff; border-radius: 11px; padding: 11px 13px; font-size: 13px; font-weight: 780; white-space: nowrap; }
-    .quick { margin: 32px 0 34px; }
-    .section-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: center; margin: 0 0 15px; }
-    .section-description { color: var(--muted); font-size: 13px; }
-    .clocks { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
-    .clock { border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); border-radius: 15px; padding: 17px 20px; }
-    .clock-city { font-size: 13px; color: var(--muted); font-weight: 730; }
-    .clock-time { font-size: clamp(26px,3.4vw,37px); font-weight: 790; letter-spacing: -.035em; margin: 4px 0 0; font-variant-numeric: tabular-nums; }
-    .clock-date { font-size: 12px; color: #8190a6; }
-    .zone-card { border-radius: 18px; box-shadow: var(--shadow); background: #fff; border: 1px solid var(--line); overflow: hidden; }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 610px; }
-    thead th { background: #f7f9fd; border-bottom: 1px solid #e3e8f2; color: #77839a; padding: 12px 19px; font-weight: 730; font-size: 12px; text-transform: uppercase; letter-spacing: .035em; }
-    tbody td { padding: 14px 19px; border-bottom: 1px solid #edf0f6; vertical-align: middle; }
-    tbody tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: #fbfcff; }
-    tbody tr.highlight { background: #f4f6ff; }
-    .zone-city { font-weight: 760; font-size: 15px; }
-    .zone-more { display: block; margin-top: 2px; font-size: 12px; color: #8a96a9; }
-    .zone-offset { background: #f0f3f8; color: #5c6d88; padding: 6px 9px; border-radius: 7px; font-size: 12px; font-weight: 780; white-space: nowrap; }
-    .zone-time { font-weight: 830; font-size: 22px; font-variant-numeric: tabular-nums; letter-spacing: -.02em; white-space: nowrap; }
-    .zone-date { font-size: 12px; color: #77839a; }
-    .date-tag { margin-left: 8px; background: #fff0da; color: #a05b00; padding: 4px 7px; border-radius: 7px; font-size: 11px; font-weight: 770; white-space: nowrap; }
-    .date-tag.next { background: #dcf6ec; color: #18764f; }
-    .note { margin-top: 15px; font-size: 12px; line-height: 1.65; color: #718097; }
-    footer { max-width: 1100px; margin: 30px auto 0; font-size: 12px; color: #99a3b4; text-align: center; }
-    @media (max-width: 760px) {
-      .top { padding: 34px 18px 119px; }
-      main { padding: 0 15px 38px; }
-      .converter { padding: 18px; }
-      .pair { grid-template-columns: 1fr; gap: 9px; }
-      .switch-wrap { flex-direction: row; }
-      .swap { width: 42px; height: 42px; transform: rotate(90deg); }
-      .city-panel { padding: 16px; }
-      .clocks { grid-template-columns: repeat(2,minmax(0,1fr)); }
-      table { min-width: 0; width: 100%; }
-      thead { display: none; }
-      tbody tr { display: grid; grid-template-columns: minmax(0, 1fr) 128px; gap: 2px 6px; padding: 13px 16px; border-bottom: 1px solid #edf0f6; }
-      tbody tr:last-child { border-bottom: 0; }
-      tbody td { border: 0; padding: 0; }
-      tbody td:nth-child(1) { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-      tbody td:nth-child(2) { grid-column: 1; grid-row: 3; padding-top: 4px; }
-      tbody td:nth-child(3) { grid-column: 2; grid-row: 1; text-align: right; }
-      tbody td:nth-child(4) { grid-column: 2; grid-row: 2 / span 2; text-align: right; align-self: start; }
-      .zone-time { font-size: 25px; }
-      .zone-city { font-size: 14px; }
-      .zone-more { font-size: 11px; }
-      .date-tag { display: inline-block; margin: 3px 0 0 3px; }
-    }
-    @media (max-width: 390px) {
-      .datetime { grid-template-columns: 1fr 114px; gap: 6px; }
-      .datetime input { font-size: 14px; padding: 0 7px; }
-      .time-input { font-size: 19px !important; }
-      .clocks { gap: 8px; }
-      .clock { padding: 14px; }
-      .clock-time { font-size: 28px; }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f1f1f1">
+<meta name="description" content="Перевод времени между городами и 11 часовыми поясами России — на одном экране.">
+<title>Часовые пояса России — TIME SHIFT Orange + Самара</title>
+<style>
+
+:root{--bg:#ebebeb;--paper:#fbfbfb;--surface:#fff;--ink:#0b0b0c;--muted:#777879;--edge:#dfdfdf;--slate:#424345;--accent:#ff7a00;--accent-soft:#fff2e6;--accent-deep:#d85e00}
+*{box-sizing:border-box}
+html{min-height:100%;background:#e9e9e9}
+body{margin:0;color:var(--ink);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:13px;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;background:radial-gradient(ellipse 90% 40% at 50% -12%,#fff,#f2f2f2 62%,#eaeaea 100%)}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{width:min(100%,810px);min-height:100dvh;margin:0 auto;padding:15px 16px max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;position:relative}
+.app::before{content:"";position:absolute;pointer-events:none;inset:0 16px auto;height:190px;background:radial-gradient(ellipse at 77% 0%,rgba(255,255,255,.85) 0%,rgba(232,232,232,0) 67%);z-index:-1}
+.app-header{display:flex;justify-content:space-between;align-items:center;min-height:65px;gap:12px}
+.titles{min-width:0}.kicker{color:#747474;font-size:9px;font-weight:850;letter-spacing:.19em;margin:0 0 3px;text-transform:uppercase}
+h1{font-size:27px;line-height:.99;letter-spacing:-.067em;font-weight:940;margin:0;text-transform:uppercase;white-space:nowrap}
+.brand-sign{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:60px;height:60px;border:1px solid #bfc0c0;border-radius:50%;background:radial-gradient(circle at 32% 22%,#fff,#e2e2e2 70%,#d4d4d4);box-shadow:inset 1px 1px 2px white,0 4px 18px #0000000d;position:relative;overflow:hidden}
+.brand-sign::before,.brand-sign::after{content:"";position:absolute;border-radius:50%;border:1px solid #aeb0b0;width:49px;height:49px;transform:rotate(-30deg) scaleX(.34)}
+.brand-sign::after{transform:rotate(30deg) scaleX(.34)}.brand-sign span{font-size:18px;font-weight:950;letter-spacing:-.09em;position:relative;background:#e4e4e4;padding:2px 4px;border-radius:5px}
+.live-shell{display:flex;align-items:center;gap:9px;border-top:1px solid #d6d6d6;border-bottom:1px solid #d6d6d6;padding:8px 3px;min-height:33px}
+.live-label{color:#555;font-size:9px;letter-spacing:.09em;text-transform:uppercase;font-weight:850;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.live-label::before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px #ffd9bf}
+.live{flex:1;color:#393a3a;font-size:10px;font-weight:750;letter-spacing:-.01em;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.converter{background:linear-gradient(140deg,#fff 0%,#f5f5f5 55%,#fff 100%);padding:11px;border:1px solid #dcdcdc;border-radius:19px;box-shadow:0 8px 23px #0000000b}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative}
+.city-panel{background:linear-gradient(135deg,#fff,#f1f1f1);border:1px solid #d8d8d8;border-radius:12px;padding:11px 11px 10px;min-width:0;position:relative;transition:background .2s ease,border .2s ease}
+.city-panel.active{background:linear-gradient(135deg,#050505,#242424 75%,#161616);border-color:var(--accent);color:#fff;box-shadow:inset 0 1px 0 #555, 0 0 0 1px rgba(255,122,0,.08)}
+.city-panel.active::after{content:"";position:absolute;right:0;top:0;width:38px;height:35px;background:linear-gradient(135deg,var(--accent) 1%,#3a1d00 95%);clip-path:polygon(100% 0,100% 100%,0 0);pointer-events:none;border-radius:0 10px 0 0}
+.city-row{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:8px;align-items:end}
+.field-label{display:block;margin:0 0 5px;color:#8b8b8b;font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.09em}.field-label strong{color:var(--accent)}
+.city-panel.active .field-label{color:#bcbcbc}
+.select-wrap{position:relative}.select-wrap::after{content:'⌄';position:absolute;right:10px;top:50%;transform:translateY(-56%);font-size:14px;color:var(--accent);pointer-events:none;font-weight:900}.select-wrap::before{content:'город';position:absolute;right:26px;top:50%;transform:translateY(-53%);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#8a8a8a;pointer-events:none}.city-panel.active .select-wrap::before{color:#f5c7a8}.city-panel.active .select-wrap::after{color:var(--accent)}select{-webkit-appearance:none;appearance:none;width:100%;height:38px;min-width:0;padding:0 60px 0 10px;border:1px solid #cfcfcf;border-radius:8px;background-color:#fff;color:#161616;font-size:13px;font-weight:850;text-overflow:ellipsis;box-shadow:inset 0 1px 0 #fff}select:hover{border-color:var(--accent)}.city-panel.active select{border-color:#555;color:#fff;background-color:#292929;color-scheme:dark}.city-panel.active select:hover{border-color:var(--accent)}select option,select optgroup{background-color:#fff;color:#161616}.city-panel.active select option,.city-panel.active select optgroup{background-color:#252525;color:#fff}
+.time-trigger{display:flex;align-items:center;justify-content:center;position:relative;width:100%;height:35px;white-space:nowrap;text-align:center;padding:0 12px 0 2px;border:1px solid #c7c7c7;border-radius:7px;background:#fff;color:#050505;font-weight:920;font-size:21px;letter-spacing:-.065em;font-variant-numeric:tabular-nums}
+.time-trigger::after{content:"⌄";position:absolute;top:50%;right:3px;transform:translateY(-58%);font-size:14px;color:#797979}
+.city-panel.active .time-trigger{background:#f9f9f9;border-color:#999;color:#080808}
+.time-trigger:active{background:#e3e3e3}
+.panel-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}
+.panel-bottom .field-label{display:none}
+input[type=date]{font-size:11px;color:#383838;border:1px solid #d6d6d6;background:#fff;min-width:0;height:29px;padding:0 5px;border-radius:6px;max-width:142px;color-scheme:light}
+.city-panel.active input[type=date]{color-scheme:dark;background:#262626;color:#ededed;border-color:#4e4e4e}
+.panel-foot{font-size:9px;color:#838383;white-space:nowrap}.city-panel.active .panel-foot{color:#c5c5c5}
+.swap{z-index:4;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:31px;height:31px;display:grid;place-items:center;color:#fff;background:var(--accent);border:3px solid #f5f5f5;border-radius:50%;font-size:17px;box-shadow:0 2px 12px rgba(255,122,0,.35)}
+.result{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:9px;padding:8px 10px;border:1px solid #dddddd;background:#f1f1f1;border-radius:8px;min-width:0}
+.result-text{font-size:25px;font-weight:950;letter-spacing:-.07em;line-height:1.05;white-space:nowrap}
+.result-sub{font-size:10px;margin-top:4px;color:#686868;line-height:1.2}
+.difference{font-size:10px;font-weight:850;white-space:nowrap;background:var(--accent);color:white;padding:9px 10px;border-radius:5px;letter-spacing:-.01em}
+.actions{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;margin-top:8px}
+.action-btn{border:1px solid #d3d3d3;border-radius:7px;min-height:32px;background:linear-gradient(#fff,#f2f2f2);color:#292929;padding:6px 4px;font-size:11px;font-weight:850;white-space:nowrap}
+.action-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent-deep)}
+.action-btn:active{transform:scale(.99)}
+.zones{background:linear-gradient(160deg,#fff,#f8f8f8);border:1px solid #d8d8d8;border-radius:19px;padding:12px;display:flex;flex:1;flex-direction:column;min-height:0;box-shadow:0 8px 20px #00000008}
+.zones-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:0 2px 9px}
+h2{margin:0;font-size:19px;letter-spacing:-.055em;font-weight:930;text-transform:uppercase;white-space:nowrap}
+.helper{text-align:right;color:#9a9a9a;font-size:9px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.table-wrap{min-height:0;flex:1;display:flex;flex-direction:column}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums;flex:1}
+thead th{padding:8px 8px;background:#111;color:white;text-transform:uppercase;text-align:left;font-size:9px;letter-spacing:.12em;font-weight:800}
+thead th:first-child{border-radius:5px 0 0 5px}thead th:last-child{border-radius:0 5px 5px 0;text-align:right}
+tbody tr{height:33px;border-bottom:1px solid #e8e8e8}
+tbody tr:last-child{border-bottom:0}
+tbody tr.highlight{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+tbody td{padding:4px 8px;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.col-city{width:45%}.city-name{font-size:12px;font-weight:800;letter-spacing:-.015em}
+.col-utc{width:16%;font-size:10px;color:#9a9a9a}
+.col-time{width:18%;text-align:right;font-size:18px;font-weight:940;letter-spacing:-.06em}
+.col-date{width:21%;font-size:11px;color:#696969;text-align:right}
+.day-offset{display:inline-block;margin-left:4px;border-radius:3px;padding:2px 3px;font-size:9px;font-weight:900;vertical-align:1px}
+.day-offset.earlier{background:#1a1a1a;color:white}.day-offset.later{background:#d1d1d1;color:#111}
+.legend{font-size:9px;color:#969696;text-align:right;margin-top:8px;letter-spacing:.01em}
+.wheel-open{overflow:hidden}
+.wheel-overlay[hidden]{display:none!important}
+.wheel-overlay{position:fixed;z-index:50;inset:0;display:flex;align-items:center;justify-content:center;padding:15px;background:#0009;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.wheel-sheet{width:min(100%,340px);background:linear-gradient(130deg,#fff,#f0f0f0);border-radius:20px;padding:18px;border:1px solid #cfcfcf;box-shadow:0 24px 65px #0005;outline:none}
+.wheel-head{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.wheel-heading{font-weight:950;font-size:19px;letter-spacing:-.055em;text-transform:uppercase}
+.wheel-subtitle{font-size:11px;color:#737373;margin-top:4px}
+.wheel-x{border:1px solid #d2d2d2;background:#fff;color:#111;border-radius:50%;width:32px;height:32px;font-size:21px;display:grid;place-items:center}
+.wheel-labels{display:grid;grid-template-columns:1fr 1fr;gap:18px;text-align:center;margin:15px 15px 2px;color:#757575;font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.wheel-frame{position:relative;height:230px;display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:0 10px;overflow:hidden}
+.wheel-frame::before,.wheel-frame::after{content:"";position:absolute;left:0;right:0;height:72px;z-index:2;pointer-events:none}
+.wheel-frame::before{top:0;background:linear-gradient(#f8f8f8,transparent)}
+.wheel-frame::after{bottom:0;background:linear-gradient(transparent,#f3f3f3)}
+.wheel-center{position:absolute;top:92px;left:0;right:0;height:46px;background:#151515;border-radius:8px;z-index:0;pointer-events:none}
+.wheel-column{height:230px;position:relative;z-index:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;overscroll-behavior:contain;scroll-snap-type:y mandatory;touch-action:pan-y;outline:none;-webkit-overflow-scrolling:touch;user-select:none;-webkit-user-select:none}
+.wheel-column::-webkit-scrollbar{display:none}.wheel-spacer{height:92px;flex:none}
+.wheel-number{height:46px;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;cursor:pointer;color:#9e9e9e;font-size:22px;font-weight:650;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+.wheel-number.is-selected{color:#fff;font-size:30px;font-weight:930}
+.wheel-footer{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:center;margin-top:12px}
+.wheel-selected{font-size:27px;font-weight:950;letter-spacing:-.06em}.wheel-done{border:0;background:#111;color:#fff;border-radius:9px;font-weight:900;font-size:14px;min-height:44px;padding:11px 26px}
+.wheel-tip{text-align:center;font-size:10px;color:#909090;margin:10px 0 0}
+@media(max-width:600px){
+ .app{gap:8px;padding:10px 10px max(6px,env(safe-area-inset-bottom))}
+ .app-header{min-height:54px}.brand-sign{width:51px;height:51px}.brand-sign span{font-size:16px}.brand-sign::before,.brand-sign::after{width:42px;height:42px}
+ h1{font-size:24px}.kicker{font-size:8px}.live-shell{padding:6px 2px;min-height:29px}.live{font-size:10px}
+ .converter{padding:8px;border-radius:16px}.pair{grid-template-columns:1fr;gap:6px}
+ .city-panel{padding:7px 9px;border-radius:10px}
+ .city-row{grid-template-columns:minmax(0,1fr) 94px;gap:8px}.field-label{font-size:8px;margin-bottom:3px}
+ select,.time-trigger{height:30px}.time-trigger{font-size:20px}
+ .panel-bottom{margin-top:4px}input[type=date]{height:25px;font-size:11px}.panel-foot{font-size:9px}
+ .swap{left:auto;right:13px;top:50%;transform:translateY(-50%) rotate(90deg);width:26px;height:26px;border-width:2px;font-size:16px}
+ .result{margin-top:7px;padding:7px 9px}.result-text{font-size:23px}.result-sub{font-size:9px}.difference{font-size:10px;padding:8px 7px}
+ .actions{margin-top:6px}.action-btn{min-height:29px;padding:5px 3px;font-size:10px}
+ .zones{padding:8px 8px 7px;border-radius:16px}.zones-head{padding:0 2px 5px}h2{font-size:17px}.helper{font-size:8px}
+ thead th{font-size:8px;padding:6px 5px}
+ tbody tr{height:30px}tbody td{padding:2px 5px}.city-name{font-size:12px}.col-utc{font-size:10px}.col-time{font-size:17px}.col-date{font-size:10px}.day-offset{font-size:9px}
+ .legend{margin-top:5px;font-size:9px}
+}
+@media(max-width:355px){h1{font-size:21px}.city-name{font-size:11px}.col-time{font-size:16px}.col-utc{font-size:9px}.col-date{font-size:9px}.day-offset{font-size:8px}}
+@media(max-height:760px) and (max-width:600px){
+ .app{gap:5px;padding-top:6px}.app-header{min-height:44px}.brand-sign{width:42px;height:42px}.brand-sign::before,.brand-sign::after{height:33px;width:33px}
+ h1{font-size:22px}.live-shell{padding:5px 2px;min-height:24px}
+ .converter{padding:6px}.city-panel{padding:4px 8px}.city-row select,.city-row .time-trigger{height:27px}.field-label{margin-bottom:2px}.panel-bottom{margin-top:3px}.panel-bottom input{height:23px}
+ .result{margin-top:5px;padding:5px 7px}.result-text{font-size:20px}.result-sub{margin-top:2px}.actions{margin-top:5px}.action-btn{min-height:25px;padding:4px 3px}
+ .zones{padding:5px 7px}.zones-head{padding-bottom:4px}thead th{padding:4px 5px}tbody tr{height:26px}tbody td{padding:1px 5px}.col-time{font-size:16px}.legend{margin-top:3px}
+}
+@media(max-height:720px) and (max-width:600px){
+ .app{padding-top:3px;padding-bottom:3px;gap:3px}.app-header{min-height:34px}.brand-sign{height:34px;width:34px}.brand-sign span{font-size:12px}.brand-sign::before,.brand-sign::after{width:27px;height:27px}
+ h1{font-size:19px;line-height:.91}.kicker{font-size:7px;margin-bottom:1px}.live-shell{min-height:19px;padding:3px 2px}.live-label,.live{font-size:8px}
+ .converter{padding:5px}.pair{gap:4px}.city-panel{padding:3px 7px}.city-row select,.city-row .time-trigger{height:25px}.field-label{font-size:7px;margin-bottom:1px}.panel-bottom{margin-top:2px}.panel-bottom input{height:22px;font-size:10px}.panel-foot{font-size:8px}
+ .result{margin-top:4px;padding:4px 6px}.result-text{font-size:19px}.result-sub{font-size:8px;margin-top:2px}.difference{font-size:9px;padding:6px}.actions{margin-top:4px;gap:4px}.action-btn{min-height:23px;padding:3px 2px;font-size:9px}
+ .zones{padding:4px 6px}.zones-head{padding-bottom:2px}h2{font-size:15px}.helper{font-size:7px}thead th{padding:3px 4px;font-size:7px}
+ tbody tr{height:23px}tbody td{padding:0 4px}.city-name{font-size:11px}.col-time{font-size:15px}.col-utc,.col-date{font-size:9px}.day-offset{font-size:8px;padding:1px 2px}.legend{margin-top:2px;font-size:8px}
+}
+@media(min-width:601px){.app{padding-top:24px;gap:14px}.converter{padding:17px}.city-row{grid-template-columns:minmax(0,1fr) 125px}.field-label{font-size:10px}.result{padding:13px}.result-text{font-size:32px}.zones{padding:18px}tbody tr{height:38px}.city-name{font-size:14px}.col-time{font-size:20px}}
+@media(min-width:601px) and (max-height:850px){
+ .app{padding-top:9px;padding-bottom:7px;gap:7px}.app-header{min-height:47px}.brand-sign{height:45px;width:45px}.brand-sign::before,.brand-sign::after{height:37px;width:37px}h1{font-size:24px}
+ .live-shell{padding:5px 2px;min-height:25px}.converter{padding:8px}.city-panel{padding:7px 9px}.panel-bottom input{height:25px}.result{padding:7px 9px;margin-top:6px}.result-text{font-size:27px}.actions{margin-top:5px}.action-btn{min-height:29px}
+ .zones{padding:9px}.zones-head{padding-bottom:6px}h2{font-size:17px}thead th{padding:5px 7px}tbody tr{height:27px}tbody td{padding:2px 7px}.col-time{font-size:18px}.legend{margin-top:3px}
+}
+
+/* Быстрый выбор с Самарой. На каждой карточке показано текущее время города. */
+.quickbar{padding:6px 0 0;border-top:1px solid #d6d6d6;border-bottom:1px solid #d6d6d6;flex-shrink:0}
+.quick-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;min-height:22px}
+.quick-caption{font-size:9px;font-weight:850;letter-spacing:.085em;color:#666;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.quick-dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #ffe1cb}
+.quick-target{display:flex;gap:2px;background:#dedede;padding:2px;border-radius:7px}
+.quick-target button{background:none;border:0;border-radius:5px;color:#666;font-size:10px;font-weight:850;padding:4px 9px;line-height:1.05}
+.quick-target button[aria-pressed="true"]{background:#111;color:white}
+.quick-cities{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:7px}
+.quick-city{min-width:0;min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:5px 3px;background:linear-gradient(#fff,#f6f6f6);border:1px solid #d2d2d2;border-radius:8px;color:#232323;line-height:1.15}
+.quick-city[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 -2px 0 var(--accent)}
+.quick-name{max-width:100%;white-space:nowrap;font-weight:850;font-size:10px;letter-spacing:-.025em}
+.quick-clock{font-weight:900;font-size:12px;letter-spacing:-.025em;font-variant-numeric:tabular-nums;color:#858585}
+.quick-city[aria-pressed="true"] .quick-clock{color:var(--accent-deep)}
+@media(max-width:600px){.quickbar{padding-top:4px}.quick-head{margin-bottom:3px;min-height:19px}.quick-cities{margin-bottom:5px;gap:4px}.quick-city{min-height:35px;padding:3px 1px}.quick-name{font-size:9px}.quick-clock{font-size:11px}.quick-target button{padding:3px 8px}}
+@media(max-height:760px) and (max-width:600px){.quickbar{padding-top:2px}.quick-head{margin-bottom:2px;min-height:17px}.quick-cities{margin-bottom:3px}.quick-city{min-height:29px;padding:2px 1px}.quick-clock{font-size:10px}.quick-caption{font-size:8px}.quick-target button{font-size:9px;padding:2px 6px}}
+@media(max-height:720px) and (max-width:600px){.quickbar{padding-top:1px}.quick-head{margin-bottom:1px;min-height:15px}.quick-cities{margin-bottom:2px}.quick-city{min-height:25px;padding:1px}.quick-name{font-size:8px}.quick-clock{font-size:9px}.quick-target button{padding:1px 5px}}
+
+@media(min-height:761px) and (max-width:600px){tbody tr{height:clamp(23px,2.9dvh,30px)}}
+@media(min-height:761px) and (max-width:380px){.app{gap:5px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+</style>
 </head>
 <body>
-  <header class="top">
-    <div class="container">
-      <div class="eyebrow">Россия · 11 часовых поясов</div>
-      <h1>Который час в другом городе?</h1>
-      <p class="intro">Введите дату и время в одном городе — получите точное время в другом и сразу во всех часовых поясах России. Можно вводить время с любой стороны.</p>
-    </div>
+<main class="app">
+  <header class="app-header">
+    <div class="titles"><div class="kicker">TIME SHIFT / RUSSIA</div><h1>Часовые<br>пояса.</h1></div>
+    <div class="brand-sign" aria-label="11 часовых поясов"><span>11</span></div>
   </header>
-  <main class="container">
-    <section class="converter" aria-label="Перевод времени">
-      <div class="converter-heading">
-        <h2>Перевод времени</h2>
-        <span class="tip">Меняйте дату или время в любом из двух полей</span>
+  <section class="quickbar" aria-label="Быстрый выбор городов">
+    <div class="quick-head">
+      <span class="quick-caption"><span class="quick-dot"></span> ГОРОДА · БЫСТРЫЙ ВЫБОР</span>
+      <div class="quick-target" role="group" aria-label="В какую панель подставить город">
+        <button type="button" data-quick-side="A" aria-pressed="false">Откуда</button>
+        <button type="button" data-quick-side="B" aria-pressed="true">Куда</button>
       </div>
-      <div class="pair">
-        <div class="city-panel active" id="panelA">
-          <label class="field-label" for="cityA">Город 1</label>
-          <select id="cityA" aria-label="Первый город"></select>
-          <div class="datetime">
-            <div><label class="field-label" for="dateA">Дата</label><input id="dateA" type="date" /></div>
-            <div><label class="field-label" for="timeA">Время</label><input id="timeA" class="time-input" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="ЧЧ:ММ" aria-label="Время в первом городе, 24-часовой формат" /></div>
-          </div>
-          <div class="panel-foot" id="footA">Исходное время</div>
+    </div>
+    <div class="quick-cities">
+      <button type="button" class="quick-city" data-quick-city="Москва"><span class="quick-name">Москва</span><span class="quick-clock" data-clock="Москва">--:--</span></button>
+      <button type="button" class="quick-city" data-quick-city="Самара"><span class="quick-name">Самара</span><span class="quick-clock" data-clock="Самара">--:--</span></button>
+      <button type="button" class="quick-city" data-quick-city="Екатеринбург"><span class="quick-name">Екатеринбург</span><span class="quick-clock" data-clock="Екатеринбург">--:--</span></button>
+      <button type="button" class="quick-city" data-quick-city="Владивосток"><span class="quick-name">Владивосток</span><span class="quick-clock" data-clock="Владивосток">--:--</span></button>
+    </div>
+  </section>
+  <section class="converter" aria-label="Перевод времени между городами">
+    <div class="pair">
+      <div class="city-panel active" id="panelA">
+        <div class="city-row">
+          <div><label class="field-label" for="cityA"><strong>Откуда</strong> · город</label><div class="select-wrap"><select id="cityA" aria-label="Первый город"></select></div></div>
+          <div><label class="field-label" for="timeA">Время · 24 ч</label><button type="button" id="timeA" class="time-trigger" aria-label="Выбрать время в первом городе с помощью колеса прокрутки" aria-haspopup="dialog">04:00</button></div>
         </div>
-        <div class="switch-wrap"><button id="swap" class="swap" type="button" aria-label="Поменять города местами" title="Поменять города местами">⇄</button></div>
-        <div class="city-panel" id="panelB">
-          <label class="field-label" for="cityB">Город 2</label>
-          <select id="cityB" aria-label="Второй город"></select>
-          <div class="datetime">
-            <div><label class="field-label" for="dateB">Дата</label><input id="dateB" type="date" /></div>
-            <div><label class="field-label" for="timeB">Время</label><input id="timeB" class="time-input" type="text" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="ЧЧ:ММ" aria-label="Время во втором городе, 24-часовой формат" /></div>
-          </div>
-          <div class="panel-foot" id="footB">Время в другом городе</div>
+        <div class="panel-bottom"><input id="dateA" type="date" aria-label="Дата в первом городе"/><div class="panel-foot" id="footA">Исходное время · выберите город</div></div>
+      </div>
+      <button id="swap" class="swap" type="button" aria-label="Поменять города местами" title="Поменять города местами">⇄</button>
+      <div class="city-panel" id="panelB">
+        <div class="city-row">
+          <div><label class="field-label" for="cityB"><strong>Куда</strong> · город</label><div class="select-wrap"><select id="cityB" aria-label="Второй город"></select></div></div>
+          <div><label class="field-label" for="timeB">Время · 24 ч</label><button type="button" id="timeB" class="time-trigger" aria-label="Выбрать время во втором городе с помощью колеса прокрутки" aria-haspopup="dialog">22:00</button></div>
         </div>
+        <div class="panel-bottom"><input id="dateB" type="date" aria-label="Дата во втором городе"/><div class="panel-foot" id="footB">Время в другом городе</div></div>
       </div>
-      <div class="actions">
-        <button type="button" class="action-btn primary" id="example">Пример: Владивосток, 04:00</button>
-        <button type="button" class="action-btn" id="setNow">Поставить текущее время</button>
-        <button type="button" class="action-btn" id="copy">Скопировать перевод</button>
-      </div>
-      <div class="result" aria-live="polite">
-        <div>
-          <div class="result-label">Результат перевода</div>
-          <div class="result-text" id="resultText">04:00 Владивосток → 22:00 Самара</div>
-          <div class="result-sub" id="resultSub">В Самаре — предыдущий день</div>
-        </div>
-        <div class="difference" id="delta">Разница: −6 часов</div>
-      </div>
-    </section>
+    </div>
+    <div class="result" aria-live="polite"><div><div class="result-text" id="resultText">04:00 → 22:00</div><div class="result-sub" id="resultSub">Владивосток → Самара · предыдущий день</div></div><div class="difference" id="delta">−6 часов</div></div>
+    <div class="actions">
+      <button type="button" id="example" class="action-btn primary">↺ Пример 04:00</button>
+      <button type="button" id="setNow" class="action-btn">◷ Сейчас</button>
+      <button type="button" id="copy" class="action-btn">▣ Скопировать</button>
+    </div>
+  </section>
+  <section class="zones" aria-label="Все 11 часовых поясов России">
+    <div class="zones-head"><h2>11 часовых поясов</h2><div class="helper">UTC+02 — UTC+12</div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th style="width:45%">Город</th><th style="width:16%">UTC</th><th style="width:18%;text-align:right">Время</th><th style="width:21%">Дата</th></tr></thead>
+      <tbody id="zoneRows"></tbody>
+    </table></div>
+    <div class="legend">−1 — вчера · +1 — завтра относительно исходного города</div>
+  </section>
+</main>
 
-    <section class="quick" aria-label="Время сейчас">
-      <div class="section-head"><h2>Сейчас в городах</h2><span class="section-description">Живые часы · обновляются автоматически</span></div>
-      <div class="clocks" id="clocks"></div>
-    </section>
-
-    <section aria-label="Все часовые пояса России">
-      <div class="section-head"><h2>Все 11 часовых поясов</h2><span class="section-description">Для выбранных даты и момента времени</span></div>
-      <div class="zone-card"><div class="table-wrap">
-        <table>
-          <thead><tr><th>Город / пояс</th><th>UTC</th><th>Время</th><th>Дата</th></tr></thead>
-          <tbody id="zoneRows"></tbody>
-        </table>
-      </div></div>
-      <div class="note">Разница в датах учитывается автоматически: «накануне» означает предыдущий календарный день, «следующий день» — следующий. Для исторических дат используются данные часовых зон браузера; при переводе времени в годы с сезонными или законодательными изменениями возможны неоднозначные местные часы. Страница работает без интернета и не передаёт введённые данные на сервер.</div>
-    </section>
-    <footer>Часовые пояса России · Удобный перевод времени</footer>
-  </main>
-  <script>
+<div id="wheelOverlay" class="wheel-overlay" hidden>
+  <section class="wheel-sheet" id="wheelSheet" role="dialog" aria-modal="true" aria-labelledby="wheelTitle" tabindex="-1">
+    <div class="wheel-head"><div><div class="wheel-heading" id="wheelTitle">Время · 24 часа</div><div class="wheel-subtitle" id="wheelCity">Прокрутите часы и минуты</div></div><button type="button" class="wheel-x" id="wheelClose" aria-label="Закрыть выбор времени">×</button></div>
+    <div class="wheel-labels"><div>Часы (00–23)</div><div>Минуты (00–59)</div></div>
+    <div class="wheel-frame"><div class="wheel-center" aria-hidden="true"></div><div class="wheel-column" id="wheelHours" role="listbox" aria-label="Часы" tabindex="0"></div><div class="wheel-column" id="wheelMinutes" role="listbox" aria-label="Минуты" tabindex="0"></div></div>
+    <div class="wheel-footer"><div class="wheel-selected" id="wheelSelected" aria-live="off">04:00</div><button type="button" class="wheel-done" id="wheelDone">Готово</button></div>
+    <div class="wheel-tip">24-часовой формат · листайте пальцем или колёсиком мыши</div>
+  </section>
+</div>
+<script>
     'use strict';
     const zones = [
       { city: 'Калининград', tz: 'Europe/Kaliningrad', alt: 'Калининградская область', offset: 2 },
@@ -230,6 +262,8 @@
     ].map(([name, tz, offset]) => ({ name, tz, offset }));
 
     const $ = (id) => document.getElementById(id);
+    const getTime = side => $('time' + side).textContent.trim();
+    const setTime = (side, time) => { $('time' + side).textContent = time; };
     const formatCache = new Map();
     function getParts(instant, tz) {
       let f = formatCache.get(tz);
@@ -317,7 +351,17 @@
       $(id).value = String(index);
     }
     let active = 'A';
+    let quickTarget = 'B'; // Быстрые кнопки по умолчанию меняют город назначения.
     let lastInstant = null;
+    function updateQuickButtons() {
+      document.querySelectorAll('[data-quick-side]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.quickSide === quickTarget));
+      });
+      const selected = cityFor(quickTarget).name;
+      document.querySelectorAll('[data-quick-city]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.quickCity === selected));
+      });
+    }
     function displayError(message) {
       $('resultText').textContent = message;
       $('resultSub').textContent = 'Проверьте дату и время.';
@@ -328,102 +372,204 @@
       const other = side === 'A' ? 'B' : 'A';
       $('panelA').classList.toggle('active', side === 'A');
       $('panelB').classList.toggle('active', side === 'B');
-      $('footA').textContent = side === 'A' ? 'Исходное время' : 'Время в другом городе';
+      $('footA').textContent = side === 'A' ? 'Исходное время · выберите город' : 'Время в другом городе';
       $('footB').textContent = side === 'B' ? 'Исходное время' : 'Время в другом городе';
       const from = cityFor(side), to = cityFor(other);
-      const fromDate = $('date' + side).value, fromTime = $('time' + side).value;
+      const fromDate = $('date' + side).value, fromTime = getTime(side);
       if (!from || !to || !fromDate || !fromTime) { displayError('Заполните дату и время'); return; }
       const instant = utcFromWall(fromDate, fromTime, from.tz);
       if (!instant || !Number.isFinite(instant.getTime())) { displayError('Неверная дата или время'); return; }
       lastInstant = instant;
       const tp = getParts(instant, to.tz);
       $('date' + other).value = asIsoDate(tp);
-      $('time' + other).value = asTime(tp);
+      setTime(other, asTime(tp));
       const dayDelta = dayDifference(getParts(instant, from.tz), tp);
-      $('resultText').textContent = `${fromTime} ${from.name} → ${asTime(tp)} ${to.name}`;
-      $('resultSub').textContent = `${readableDate(tp)} в городе ${to.name} · ${dayNote(dayDelta)}`;
+      $('resultText').textContent = `${fromTime} → ${asTime(tp)}`;
+      $('resultSub').textContent = `${from.name} → ${to.name} · ${readableDate(tp)} · ${dayNote(dayDelta)}`;
       const diff = zoneOffsetMinutes(instant, to.tz) - zoneOffsetMinutes(instant, from.tz);
-      $('delta').textContent = `Разница: ${formatDifference(diff)}`;
+      $('delta').textContent = formatDifference(diff);
       renderZones(instant, side);
+      updateQuickButtons();
     }
     function renderZones(instant, side) {
       const base = getParts(instant, cityFor(side).tz);
       const rows = $('zoneRows');
       rows.replaceChildren();
-      const fromOffset = zoneOffsetMinutes(instant, cityFor(side).tz);
       zones.forEach(z => {
         const p = getParts(instant, z.tz);
         const dayDiff = dayDifference(base, p);
         const row = document.createElement('tr');
-        const highlight = z.tz === cityFor('A').tz || z.tz === cityFor('B').tz;
-        if (highlight) row.classList.add('highlight');
+        if (z.offset === cityFor('A').offset || z.offset === cityFor('B').offset) row.className = 'highlight';
         const city = document.createElement('td');
-        const title = document.createElement('div');
-        title.className = 'zone-city'; title.textContent = z.city;
-        const alt = document.createElement('span');
-        alt.className = 'zone-more'; alt.textContent = z.alt;
-        city.append(title, alt);
-        const off = document.createElement('td');
-        const offsetSpan = document.createElement('span');
-        offsetSpan.className = 'zone-offset'; offsetSpan.textContent = formatUtc(zoneOffsetMinutes(instant, z.tz));
-        off.appendChild(offsetSpan);
+        city.className = 'col-city';
+        const cityName = document.createElement('span');
+        cityName.className = 'city-name';
+        cityName.textContent = z.city === 'Петропавловск-Камчатский' ? 'Петропавловск' : z.city;
+        cityName.title = z.city + ' · ' + z.alt;
+        city.append(cityName);
+        const offset = document.createElement('td');
+        offset.className = 'col-utc';
+        offset.textContent = formatUtc(zoneOffsetMinutes(instant, z.tz));
         const time = document.createElement('td');
-        const tm = document.createElement('span'); tm.className = 'zone-time'; tm.textContent = asTime(p);
-        time.appendChild(tm);
+        time.className = 'col-time';
+        time.textContent = asTime(p);
         const date = document.createElement('td');
-        const dt = document.createElement('span'); dt.className = 'zone-date'; dt.textContent = readableDate(p);
-        date.appendChild(dt);
+        date.className = 'col-date';
+        const compactDate = document.createElement('span');
+        compactDate.textContent = pad(p.day) + '.' + pad(p.month);
+        date.append(compactDate);
         if (dayDiff !== 0) {
           const tag = document.createElement('span');
-          tag.className = 'date-tag' + (dayDiff > 0 ? ' next' : '');
-          tag.textContent = dayNote(dayDiff);
-          date.appendChild(tag);
+          tag.className = 'day-offset ' + (dayDiff < 0 ? 'earlier' : 'later');
+          tag.textContent = dayDiff > 0 ? '+' + dayDiff : String(dayDiff);
+          tag.title = dayNote(dayDiff);
+          tag.setAttribute('aria-label', dayNote(dayDiff));
+          date.append(tag);
         }
-        rows.appendChild(row);
-        row.append(city, off, time, date);
-        row.title = `Относительно исходного города: ${formatDifference(zoneOffsetMinutes(instant, z.tz) - fromOffset)}`;
+        row.append(city, offset, time, date);
+        rows.append(row);
+        row.title = `${z.city}: ${asTime(p)}, ${readableDate(p)} (${dayNote(dayDiff)})`;
       });
     }
     function nowCity(side = active) {
       const parts = getParts(new Date(), cityFor(side).tz);
       $('date' + side).value = asIsoDate(parts);
-      $('time' + side).value = asTime(parts);
+      setTime(side, asTime(parts));
       recalculate(side);
     }
     function showExample() {
       chooseCity('cityA', 'Владивосток');
       chooseCity('cityB', 'Самара');
       $('dateA').value = asIsoDate(getParts(new Date(), 'Asia/Vladivostok'));
-      $('timeA').value = '04:00';
+      setTime('A', '04:00');
       recalculate('A');
     }
-    function normalizeTimeInput(value, onBlur = false) {
-      let v = value.trim();
-      if (/^\d{4}$/.test(v) || (onBlur && /^\d{3}$/.test(v))) v = v.padStart(4, '0').replace(/^(\d{2})(\d{2})$/, '$1:$2');
-      else if (/^\d:\d{2}$/.test(v)) v = '0' + v;
-      return v;
+    // Колёса выбора времени: часов (00–23) и минут (00–59).
+    const ITEM_H = 46;
+    let wheelSide = null;
+    let selectedHours = 4;
+    let selectedMinutes = 0;
+    let wheelScheduled = false;
+    let suppressWheelEvents = false;
+    const wheelCols = [ $('wheelHours'), $('wheelMinutes') ];
+    function createWheel(col, count) {
+      const top = document.createElement('div'); top.className = 'wheel-spacer'; top.setAttribute('aria-hidden', 'true');
+      col.append(top);
+      for (let i = 0; i < count; i++) {
+        const item = document.createElement('div');
+        item.className = 'wheel-number';
+        item.textContent = pad(i);
+        item.dataset.index = String(i);
+        item.setAttribute('role', 'option');
+        item.setAttribute('aria-selected', 'false');
+        item.addEventListener('click', () => { col.scrollTo({ top: i * ITEM_H, behavior: 'smooth' }); });
+        col.append(item);
+      }
+      const bottom = document.createElement('div'); bottom.className = 'wheel-spacer'; bottom.setAttribute('aria-hidden', 'true');
+      col.append(bottom);
+      col.addEventListener('scroll', scheduleWheelUpdate, { passive: true });
+      col.addEventListener('keydown', e => {
+        const count = col === $('wheelHours') ? 24 : 60;
+        const current = Math.round(col.scrollTop / ITEM_H);
+        let target = current;
+        if (e.key === 'ArrowUp') target--;
+        else if (e.key === 'ArrowDown') target++;
+        else if (e.key === 'PageUp') target -= 5;
+        else if (e.key === 'PageDown') target += 5;
+        else if (e.key === 'Home') target = 0;
+        else if (e.key === 'End') target = count - 1;
+        else return;
+        e.preventDefault();
+        col.scrollTo({ top: Math.max(0, Math.min(count - 1, target)) * ITEM_H, behavior: 'smooth' });
+      });
+    }
+    createWheel(wheelCols[0], 24);
+    createWheel(wheelCols[1], 60);
+    function wheelIndex(col, max) {
+      return Math.max(0, Math.min(max, Math.round(col.scrollTop / ITEM_H)));
+    }
+    function refreshWheelSelection() {
+      selectedHours = wheelIndex(wheelCols[0], 23);
+      selectedMinutes = wheelIndex(wheelCols[1], 59);
+      wheelCols.forEach((col, axis) => {
+        const chosen = axis === 0 ? selectedHours : selectedMinutes;
+        for (const el of col.querySelectorAll('.wheel-number')) {
+          const yes = +el.dataset.index === chosen;
+          el.classList.toggle('is-selected', yes);
+          el.setAttribute('aria-selected', String(yes));
+        }
+      });
+      const time = `${pad(selectedHours)}:${pad(selectedMinutes)}`;
+      $('wheelSelected').textContent = time;
+      if (wheelSide && getTime(wheelSide) !== time) {
+        setTime(wheelSide, time);
+        recalculate(wheelSide);
+      }
+    }
+    function scheduleWheelUpdate() {
+      if (suppressWheelEvents || !wheelSide || wheelScheduled) return;
+      wheelScheduled = true;
+      requestAnimationFrame(() => { wheelScheduled = false; if (wheelSide) refreshWheelSelection(); });
+    }
+    function openWheel(side) {
+      wheelSide = side;
+      const [h, m] = getTime(side).split(':').map(Number);
+      selectedHours = h; selectedMinutes = m;
+      $('wheelCity').textContent = cityFor(side).name + ' · прокрутите часы и минуты';
+      $('wheelOverlay').hidden = false;
+      document.body.classList.add('wheel-open');
+      suppressWheelEvents = true;
+      wheelCols[0].scrollTop = h * ITEM_H;
+      wheelCols[1].scrollTop = m * ITEM_H;
+      suppressWheelEvents = false;
+      refreshWheelSelection();
+      wheelCols[0].focus({ preventScroll: true });
+    }
+    function closeWheel() {
+      if (!wheelSide) return;
+      const side = wheelSide;
+      refreshWheelSelection();
+      wheelSide = null;
+      $('wheelOverlay').hidden = true;
+      document.body.classList.remove('wheel-open');
+      $('time' + side).focus({ preventScroll: true });
     }
     ['A', 'B'].forEach(side => {
       $('date' + side).addEventListener('input', () => recalculate(side));
-      const input = $('time' + side);
-      input.addEventListener('input', () => {
-        input.value = normalizeTimeInput(input.value);
-        const ok = /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(input.value);
-        input.setAttribute('aria-invalid', String(!ok));
-        if (ok) recalculate(side);
+      $('time' + side).addEventListener('click', () => openWheel(side));
+      $('city' + side).addEventListener('focus', () => { quickTarget = side; updateQuickButtons(); });
+      $('city' + side).addEventListener('change', () => { quickTarget = side; recalculate(active); });
+    });
+    $('wheelDone').addEventListener('click', closeWheel);
+    $('wheelClose').addEventListener('click', closeWheel);
+    $('wheelOverlay').addEventListener('click', e => { if (e.target === $('wheelOverlay')) closeWheel(); });
+    document.addEventListener('keydown', e => {
+      if (!wheelSide) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeWheel(); }
+      if (e.key === 'Tab') {
+        const focusables = [$('wheelClose'), wheelCols[0], wheelCols[1], $('wheelDone')];
+        const current = focusables.indexOf(document.activeElement);
+        if (e.shiftKey && current === 0) { e.preventDefault(); focusables[focusables.length - 1].focus(); }
+        else if (!e.shiftKey && current === focusables.length - 1) { e.preventDefault(); focusables[0].focus(); }
+      }
+    });
+    document.querySelectorAll('[data-quick-side]').forEach(button => {
+      button.addEventListener('click', () => { quickTarget = button.dataset.quickSide; updateQuickButtons(); });
+    });
+    document.querySelectorAll('[data-quick-city]').forEach(button => {
+      button.addEventListener('click', () => {
+        chooseCity('city' + quickTarget, button.dataset.quickCity);
+        recalculate(active);
       });
-      input.addEventListener('change', () => {
-        input.value = normalizeTimeInput(input.value, true);
-        recalculate(side);
-      });
-      $('city' + side).addEventListener('change', () => recalculate(active === side ? side : active));
     });
     $('swap').addEventListener('click', () => {
-      for (const part of ['city', 'date', 'time']) {
+      for (const part of ['city', 'date']) {
         const a = $(part + 'A'), b = $(part + 'B');
         [a.value, b.value] = [b.value, a.value];
       }
-      recalculate(active === 'A' ? 'B' : 'A');
+      const time = getTime('A');
+      setTime('A', getTime('B')); setTime('B', time);
+      recalculate('A');
     });
     $('example').addEventListener('click', showExample);
     $('setNow').addEventListener('click', () => nowCity(active));
@@ -431,7 +577,7 @@
       const from = cityFor(active);
       const to = cityFor(active === 'A' ? 'B' : 'A');
       const other = active === 'A' ? 'B' : 'A';
-      const message = `${$('date' + active).value} ${$('time' + active).value} (${from.name}) = ${$('date' + other).value} ${$('time' + other).value} (${to.name}).`;
+      const message = `${$('date' + active).value} ${getTime(active)} (${from.name}) = ${$('date' + other).value} ${getTime(other)} (${to.name}).`;
       try {
         if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(message);
         else {
@@ -446,29 +592,21 @@
         setTimeout(() => { btn.textContent = label; }, 1700);
       } catch (_) { window.prompt('Скопируйте результат:', message); }
     });
-    const featured = [
-      ['Москва', 'Europe/Moscow'], ['Самара', 'Europe/Samara'],
-      ['Екатеринбург', 'Asia/Yekaterinburg'], ['Владивосток', 'Asia/Vladivostok']
+    const liveZones = [
+      ['Москва', 'Europe/Moscow'],
+      ['Самара', 'Europe/Samara'],
+      ['Екатеринбург', 'Asia/Yekaterinburg'],
+      ['Владивосток', 'Asia/Vladivostok']
     ];
-    featured.forEach(([name]) => {
-      const card = document.createElement('article'); card.className = 'clock';
-      const city = document.createElement('div'); city.className = 'clock-city'; city.textContent = name;
-      const time = document.createElement('div'); time.className = 'clock-time'; time.textContent = '--:--';
-      const date = document.createElement('div'); date.className = 'clock-date'; date.textContent = '—';
-      card.append(city, time, date); $('clocks').appendChild(card);
-    });
     function tick() {
-      const instant = new Date();
-      const elements = $('clocks').children;
-      featured.forEach(([name, tz], i) => {
-        const p = getParts(instant, tz);
-        elements[i].children[1].textContent = asTime(p);
-        elements[i].children[2].textContent = readableDate(p) + ' · ' + formatUtc(zoneOffsetMinutes(instant, tz));
-      });
+      const now = new Date();
+      for (const [city, tz] of liveZones) {
+        document.querySelector(`[data-clock="${city}"]`).textContent = asTime(getParts(now, tz));
+      }
     }
     showExample();
     tick();
     setInterval(tick, 15000);
-  </script>
+</script>
 </body>
 </html>
