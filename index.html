@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f7f7f7">
 <meta name="description" content="Время в 11 часовых поясах России. Один исходный город, персональные города и подписи.">
-<title>Часовые пояса России — мой круг</title>
+<title>Часовые пояса России — мой круг · города</title>
 <style>
 :root{--orange:#ff7a00;--orange-deep:#da5b00;--orange-light:#fff1e3;--ink:#111;--muted:#797979;--border:#ddd;--bg:#f0f0f0}
 *{box-sizing:border-box}
@@ -63,7 +63,7 @@ input[type=date]{height:27px;min-width:0;max-width:160px;padding:0 6px;backgroun
 .sheet h3{font-size:20px;line-height:1.1;letter-spacing:-.045em;margin:0;font-weight:930}.sheet-sub{font-size:11px;color:#777;margin-top:4px}
 .close{border:1px solid #dedede;width:32px;height:32px;border-radius:50%;background:#f2f2f2;font-size:22px;line-height:1;color:#555}
 .sheet label{color:#676767;font-size:10px;margin:15px 0 6px}
-.sheet select,.sheet input[type=text]{width:100%;height:44px;font-size:15px;padding:0 12px;background:white;border:1px solid #ccc;color:#222;border-radius:9px}
+.sheet select,.sheet input[type=text],.sheet input[type=search]{width:100%;height:44px;font-size:15px;padding:0 12px;background:white;border:1px solid #ccc;color:#222;border-radius:9px}
 .hint{font-size:11px;line-height:1.4;color:#888;margin-top:7px}
 .modal-actions{display:flex;gap:8px;margin-top:18px}.modal-actions button{border-radius:9px;border:1px solid #d1d1d1;background:#fff;min-height:44px;padding:8px 14px;font-weight:900}.modal-actions .save{flex:1;background:var(--orange);border-color:var(--orange);color:#111}
 .wheel-head{padding-bottom:8px}.wheel-labels{display:grid;grid-template-columns:1fr 1fr;margin-top:12px;font-size:11px;font-weight:800;text-align:center;color:#666}
@@ -80,6 +80,16 @@ input[type=date]{height:27px;min-width:0;max-width:160px;padding:0 6px;backgroun
 @media(max-width:360px) and (max-height:620px){.app{gap:3px;padding-top:4px;padding-bottom:3px}header{min-height:36px}.logo{width:36px;height:36px}h1{font-size:19px}.quick{padding:1px 0 2px}.section-eyebrow{margin-bottom:1px}.quick-btn{min-height:23px}.source{padding:4px 6px}.source-head{margin-bottom:2px}.source-grid select,.time-btn{height:28px}.source-bottom{margin-top:3px}.source-bottom input,.small-btn{height:23px}.zones-head{margin-bottom:2px}.zones-head h2{font-size:13px}.zones{padding:4px}.table-header{min-height:20px}.zone-row{min-height:24px;padding:1px 3px}.zone-name{font-size:10px}.zone-desc{font-size:7px}.zone-time{font-size:15px}.zone-date{font-size:8px}.utc{font-size:8px}.edit-zone{width:22px;height:21px}.edit-zone svg{width:11px;height:11px}.legend{font-size:7px}}
 @media(min-width:601px) and (max-height:860px){.app{gap:6px;padding-top:8px;padding-bottom:7px}header{min-height:47px}h1{font-size:24px}.logo{height:44px;width:44px}.quick{padding:4px 0 5px}.quick-btn{min-height:40px}.source{padding:8px 12px}.source-grid select,.time-btn{height:35px}.source-head{margin-bottom:4px}.source-bottom{margin-top:5px}.zones{padding:8px}.zones-head{margin-bottom:4px}.zone-row{min-height:30px;padding:2px 5px}.zone-time{font-size:18px}.zone-name{font-size:12px}.table-header{min-height:24px}.edit-zone{width:26px;height:25px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+.city-pick{width:100%;min-height:31px;max-height:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;border-radius:5px}
+.city-pick:active{background:#fff0df}
+.city-pick .zone-name::after{content:'⌄';color:var(--orange);font-weight:950;padding-left:4px}
+.popular-cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.popular-city{border:1px solid #ddd;border-radius:8px;background:#fff;padding:9px 11px;min-height:36px;font-size:12px;font-weight:800;color:#222}
+.popular-city.is-selected{border-color:var(--orange);background:var(--orange-light);color:#9c4200}
+.city-counter{margin-top:5px;color:#777;font-size:10px}
+.sheet button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:380px){.popular-city{padding:7px 8px;font-size:11px}}
 </style>
 </head>
 <body>
@@ -103,22 +113,26 @@ input[type=date]{height:27px;min-width:0;max-width:160px;padding:0 6px;backgroun
   <div class="source-bottom"><input id="sourceDate" type="date" aria-label="Дата исходного города"><div class="source-actions"><button type="button" class="small-btn" id="nowBtn">◷ Сейчас</button><button type="button" class="small-btn primary" id="exampleBtn">↺ 04:00</button></div></div>
  </section>
  <section class="zones" aria-label="Время в остальных десяти часовых поясах России">
-  <div class="zones-head"><h2>Остальные 10 поясов</h2><span>✎ — город или имя</span></div>
+  <div class="zones-head"><h2>Остальные 10 поясов</h2><span>Нажмите на город или ✎</span></div>
   <div class="zone-table">
    <div class="table-header"><span>Город / имя</span><span>UTC</span><span>Время</span><span>Дата</span><span></span></div>
    <div id="zoneRows"></div>
   </div>
-  <div class="legend">−1 — вчера · +1 — завтра · нажмите ✎ для настройки</div>
+  <div class="legend">−1 — вчера · +1 — завтра · нажмите название города для настройки</div>
  </section>
 </main>
 <div class="overlay" id="editOverlay" hidden>
  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="editTitle">
   <div class="sheet-head"><div><h3 id="editTitle">Настроить город</h3><div class="sheet-sub" id="editZone">UTC+04</div></div><button class="close" type="button" id="editClose" aria-label="Закрыть">×</button></div>
-  <label for="editCity">Город в этом часовом поясе</label>
-  <select id="editCity"></select>
-  <label for="editLabel">Своё имя или подпись</label>
-  <input id="editLabel" type="text" maxlength="32" placeholder="Например, Мама, Брат, Дом…" autocomplete="off">
-  <div class="hint">Можно выбрать город из списка и подписать его именем. Например: «Мама» · Самара. Если написать другой город вручную, подпись изменится, но часовой пояс останется тем же.</div>
+  <label for="editSearch">Найти город этого часового пояса</label>
+  <input id="editSearch" type="search" placeholder="Поиск города" autocomplete="off" inputmode="search">
+  <div class="popular-cities" id="popularCities" aria-label="Крупные города этого пояса"></div>
+  <label for="editCity">Выберите город из списка</label>
+  <select id="editCity" aria-label="Города выбранного часового пояса"></select>
+  <div class="city-counter" id="cityCounter" aria-live="polite"></div>
+  <label for="editLabel">Задать своё имя</label>
+  <input id="editLabel" type="text" maxlength="32" placeholder="Задать своё имя" autocomplete="off">
+  <div class="hint">Своя подпись необязательна. Если её не задать, будет показан выбранный город. Время всегда соответствует часовому поясу выбранного города.</div>
   <div class="modal-actions"><button type="button" id="resetZone">Сбросить</button><button type="button" class="save" id="saveZone">Сохранить</button></div>
  </div>
 </div>
@@ -158,6 +172,128 @@ const cities=[
  ['Магадан','Asia/Magadan',11],['Южно-Сахалинск','Asia/Sakhalin',11],
  ['Петропавловск-Камчатский','Asia/Kamchatka',12],['Анадырь','Asia/Anadyr',12]
 ].map(([name,tz,offset])=>({name,tz,offset}));
+const moreCities=[
+ ['Балтийск','Europe/Kaliningrad',2],
+ ['Советск','Europe/Kaliningrad',2],
+ ['Черняховск','Europe/Kaliningrad',2],
+ ['Гусев','Europe/Kaliningrad',2],
+ ['Светлогорск','Europe/Kaliningrad',2],
+ ['Зеленоградск','Europe/Kaliningrad',2],
+ ['Воронеж','Europe/Moscow',3],
+ ['Тула','Europe/Moscow',3],
+ ['Рязань','Europe/Moscow',3],
+ ['Ярославль','Europe/Moscow',3],
+ ['Владимир','Europe/Moscow',3],
+ ['Сочи','Europe/Moscow',3],
+ ['Ставрополь','Europe/Moscow',3],
+ ['Липецк','Europe/Moscow',3],
+ ['Белгород','Europe/Moscow',3],
+ ['Курск','Europe/Moscow',3],
+ ['Брянск','Europe/Moscow',3],
+ ['Калуга','Europe/Moscow',3],
+ ['Орел','Europe/Moscow',3],
+ ['Тверь','Europe/Moscow',3],
+ ['Тамбов','Europe/Moscow',3],
+ ['Пенза','Europe/Moscow',3],
+ ['Саранск','Europe/Moscow',3],
+ ['Чебоксары','Europe/Moscow',3],
+ ['Йошкар-Ола','Europe/Moscow',3],
+ ['Набережные Челны','Europe/Moscow',3],
+ ['Нижнекамск','Europe/Moscow',3],
+ ['Махачкала','Europe/Moscow',3],
+ ['Грозный','Europe/Moscow',3],
+ ['Нальчик','Europe/Moscow',3],
+ ['Владикавказ','Europe/Moscow',3],
+ ['Пятигорск','Europe/Moscow',3],
+ ['Мурманск','Europe/Moscow',3],
+ ['Архангельск','Europe/Moscow',3],
+ ['Вологда','Europe/Moscow',3],
+ ['Петрозаводск','Europe/Moscow',3],
+ ['Псков','Europe/Moscow',3],
+ ['Великий Новгород','Europe/Moscow',3],
+ ['Сыктывкар','Europe/Moscow',3],
+ ['Кострома','Europe/Moscow',3],
+ ['Сергиев Посад','Europe/Moscow',3],
+ ['Серпухов','Europe/Moscow',3],
+ ['Подольск','Europe/Moscow',3],
+ ['Химки','Europe/Moscow',3],
+ ['Мытищи','Europe/Moscow',3],
+ ['Балашиха','Europe/Moscow',3],
+ ['Энгельс','Europe/Samara',4],
+ ['Сызрань','Europe/Samara',4],
+ ['Балаково','Europe/Samara',4],
+ ['Новокуйбышевск','Europe/Samara',4],
+ ['Димитровград','Europe/Samara',4],
+ ['Чапаевск','Europe/Samara',4],
+ ['Вольск','Europe/Samara',4],
+ ['Магнитогорск','Asia/Yekaterinburg',5],
+ ['Нижний Тагил','Asia/Yekaterinburg',5],
+ ['Сургут','Asia/Yekaterinburg',5],
+ ['Нижневартовск','Asia/Yekaterinburg',5],
+ ['Курган','Asia/Yekaterinburg',5],
+ ['Ханты-Мансийск','Asia/Yekaterinburg',5],
+ ['Салехард','Asia/Yekaterinburg',5],
+ ['Новый Уренгой','Asia/Yekaterinburg',5],
+ ['Златоуст','Asia/Yekaterinburg',5],
+ ['Миасс','Asia/Yekaterinburg',5],
+ ['Орск','Asia/Yekaterinburg',5],
+ ['Стерлитамак','Asia/Yekaterinburg',5],
+ ['Нефтекамск','Asia/Yekaterinburg',5],
+ ['Тобольск','Asia/Yekaterinburg',5],
+ ['Каменск-Уральский','Asia/Yekaterinburg',5],
+ ['Когалым','Asia/Yekaterinburg',5],
+ ['Нефтеюганск','Asia/Yekaterinburg',5],
+ ['Первоуральск','Asia/Yekaterinburg',5],
+ ['Тара','Asia/Omsk',6],
+ ['Исилькуль','Asia/Omsk',6],
+ ['Калачинск','Asia/Omsk',6],
+ ['Новокузнецк','Asia/Krasnoyarsk',7],
+ ['Бийск','Asia/Krasnoyarsk',7],
+ ['Ачинск','Asia/Krasnoyarsk',7],
+ ['Норильск','Asia/Krasnoyarsk',7],
+ ['Абакан','Asia/Krasnoyarsk',7],
+ ['Кызыл','Asia/Krasnoyarsk',7],
+ ['Северск','Asia/Krasnoyarsk',7],
+ ['Бердск','Asia/Krasnoyarsk',7],
+ ['Рубцовск','Asia/Krasnoyarsk',7],
+ ['Прокопьевск','Asia/Krasnoyarsk',7],
+ ['Ленинск-Кузнецкий','Asia/Krasnoyarsk',7],
+ ['Минусинск','Asia/Krasnoyarsk',7],
+ ['Канск','Asia/Krasnoyarsk',7],
+ ['Междуреченск','Asia/Krasnoyarsk',7],
+ ['Братск','Asia/Irkutsk',8],
+ ['Ангарск','Asia/Irkutsk',8],
+ ['Усть-Илимск','Asia/Irkutsk',8],
+ ['Усолье-Сибирское','Asia/Irkutsk',8],
+ ['Северобайкальск','Asia/Irkutsk',8],
+ ['Черемхово','Asia/Irkutsk',8],
+ ['Мирный','Asia/Yakutsk',9],
+ ['Нерюнгри','Asia/Yakutsk',9],
+ ['Белогорск','Asia/Yakutsk',9],
+ ['Тында','Asia/Yakutsk',9],
+ ['Борзя','Asia/Yakutsk',9],
+ ['Алдан','Asia/Yakutsk',9],
+ ['Свободный','Asia/Yakutsk',9],
+ ['Артём','Asia/Vladivostok',10],
+ ['Находка','Asia/Vladivostok',10],
+ ['Арсеньев','Asia/Vladivostok',10],
+ ['Спасск-Дальний','Asia/Vladivostok',10],
+ ['Комсомольск-на-Амуре','Asia/Vladivostok',10],
+ ['Биробиджан','Asia/Vladivostok',10],
+ ['Дальнереченск','Asia/Vladivostok',10],
+ ['Амурск','Asia/Vladivostok',10],
+ ['Корсаков','Asia/Magadan',11],
+ ['Холмск','Asia/Magadan',11],
+ ['Оха','Asia/Magadan',11],
+ ['Сусуман','Asia/Magadan',11],
+ ['Поронайск','Asia/Magadan',11],
+ ['Елизово','Asia/Kamchatka',12],
+ ['Вилючинск','Asia/Kamchatka',12],
+ ['Билибино','Asia/Kamchatka',12],
+ ['Певек','Asia/Kamchatka',12]
+].map(([name,tz,offset])=>({name,tz,offset}));
+const existingNames=new Set(cities.map(c=>c.name));
+moreCities.forEach(c=>{if(!existingNames.has(c.name)){cities.push(c);existingNames.add(c.name)}});
 const $=id=>document.getElementById(id),pad=n=>String(n).padStart(2,'0');
 const STORE='timeshift_russia_personal_v1';
 let saved={};try{saved=JSON.parse(localStorage.getItem(STORE)||'{}')||{}}catch(e){saved={}}
@@ -208,15 +344,15 @@ function update(){
   const selected=cities.find(c=>c.offset===z.offset&&c.name===pref.city)||cities.find(c=>c.offset===z.offset&&c.name===z.city);
   const display=(pref.label||'').trim()||selected.name;
   const row=document.createElement('div');row.className='zone-row'+((pref.label||'').trim()?' named':'');row.dataset.zone=String(z.offset);
-  const nameBlock=document.createElement('div');nameBlock.className='zone-city';
+  const nameBlock=document.createElement('button');nameBlock.type='button';nameBlock.className='zone-city city-pick';nameBlock.setAttribute('aria-label',`Выбрать город и задать своё имя, UTC+${z.offset}`);nameBlock.addEventListener('click',()=>openEdit(z.offset));
   const name=document.createElement('div');name.className='zone-name';name.textContent=display;name.title=display;
-  const sub=document.createElement('div');sub.className='zone-desc';sub.textContent=(pref.label||'').trim()?selected.name:'Выбрать город или имя';
+  const sub=document.createElement('div');sub.className='zone-desc';sub.textContent=(pref.label||'').trim()?selected.name:'Нажмите для выбора';
   nameBlock.append(name,sub);
   const utc=document.createElement('div');utc.className='utc';utc.textContent=`+${pad(z.offset)}`;
   const time=document.createElement('div');time.className='zone-time';time.textContent=clock(p);
   const date=document.createElement('div');date.className='zone-date';date.textContent=`${pad(p.day)}.${pad(p.month)}`;
   if(difference){const tag=document.createElement('span');tag.className='day-tag';tag.textContent=difference>0?`+${difference}`:String(difference);tag.title=difference>0?'Завтра':'Вчера';date.append(tag)}
-  const edit=document.createElement('button');edit.type='button';edit.className='edit-zone';edit.title=`Изменить город или имя: UTC+${z.offset}`;edit.setAttribute('aria-label',edit.title);edit.innerHTML=editIcon();edit.addEventListener('click',()=>openEdit(z.offset));
+  const edit=document.createElement('button');edit.type='button';edit.className='edit-zone';edit.title=`Выбрать город или задать своё имя: UTC+${z.offset}`;edit.setAttribute('aria-label',edit.title);edit.innerHTML=editIcon();edit.addEventListener('click',()=>openEdit(z.offset));
   row.append(nameBlock,utc,time,date,edit);out.append(row);
  });
 }
@@ -227,19 +363,45 @@ $('nowBtn').addEventListener('click',()=>{const p=parts(new Date(),currentCity()
 $('exampleBtn').addEventListener('click',()=>{$('sourceCity').value='Владивосток';$('sourceDate').value=iso(parts(new Date(),'Asia/Vladivostok'));$('sourceTime').textContent='04:00';update()});
 document.querySelectorAll('.quick-btn').forEach(b=>b.addEventListener('click',()=>chooseSource(b.dataset.city)));
 setInterval(updateQuick,30000);
-let editOffset=null;
+let editOffset=null,allEditCities=[];
+function fillEditCities(query='', preferred=''){
+ const select=$('editCity');
+ const q=query.trim().toLocaleLowerCase('ru-RU');
+ const matched=allEditCities.filter(c=>c.name.toLocaleLowerCase('ru-RU').includes(q));
+ select.replaceChildren();
+ matched.forEach(c=>{const opt=document.createElement('option');opt.value=c.name;opt.textContent=c.name;select.append(opt)});
+ if(preferred&&matched.some(c=>c.name===preferred))select.value=preferred;
+ $('cityCounter').textContent=matched.length?`Городов в списке: ${matched.length}`:'Город не найден в этом часовом поясе';
+ $('saveZone').disabled=matched.length===0;
+}
+function selectEditCity(city){
+ $('editSearch').value='';fillEditCities('',city);
+ $('editCity').value=city;
+ document.querySelectorAll('.popular-city').forEach(b=>b.classList.toggle('is-selected',b.dataset.city===city));
+}
 function openEdit(offset){
- editOffset=offset;const z=zones.find(z=>z.offset===offset),p=saved.zones[offset]||{};
- $('editTitle').textContent='Город или имя';$('editZone').textContent=`UTC+${pad(offset)} · ${z.city}`;
- const sel=$('editCity');sel.replaceChildren();cities.filter(c=>c.offset===offset).forEach(c=>{const o=document.createElement('option');o.value=c.name;o.textContent=c.name;sel.append(o)});
- sel.value=p.city&&Array.from(sel.options).some(o=>o.value===p.city)?p.city:z.city;
+ editOffset=offset;
+ const z=zones.find(z=>z.offset===offset),p=saved.zones[offset]||{};
+ $('editTitle').textContent='Выберите город';$('editZone').textContent=`UTC+${pad(offset)} · ${z.city}`;
+ allEditCities=cities.filter(c=>c.offset===offset);
+ const selected=p.city&&allEditCities.some(c=>c.name===p.city)?p.city:z.city;
+ $('editSearch').value='';fillEditCities('',selected);
+ $('editCity').value=selected;
+ const common=[z.city,...allEditCities.map(c=>c.name).filter(n=>n!==z.city)].slice(0,5);
+ const popular=$('popularCities');popular.replaceChildren();
+ common.forEach(city=>{
+  const b=document.createElement('button');b.type='button';b.className='popular-city'+(city===selected?' is-selected':'');b.dataset.city=city;b.textContent=city;
+  b.addEventListener('click',()=>selectEditCity(city));popular.append(b)
+ });
  $('editLabel').value=p.label||'';
  $('editOverlay').hidden=false;document.body.style.overflow='hidden';
 }
 function closeOverlay(id){$(id).hidden=true;if($('editOverlay').hidden&&$('wheelOverlay').hidden)document.body.style.overflow=''}
+$('editSearch').addEventListener('input',()=>fillEditCities($('editSearch').value));
+$('editCity').addEventListener('change',()=>document.querySelectorAll('.popular-city').forEach(b=>b.classList.toggle('is-selected',b.dataset.city===$('editCity').value)));
 $('editClose').addEventListener('click',()=>closeOverlay('editOverlay'));
 $('editOverlay').addEventListener('click',e=>{if(e.target===$('editOverlay'))closeOverlay('editOverlay')});
-$('saveZone').addEventListener('click',()=>{if(editOffset===null)return;saved.zones[editOffset]={city:$('editCity').value,label:$('editLabel').value.trim().slice(0,32)};persist();closeOverlay('editOverlay');update()});
+$('saveZone').addEventListener('click',()=>{if(editOffset===null||!$('editCity').value)return;saved.zones[editOffset]={city:$('editCity').value,label:$('editLabel').value.trim().slice(0,32)};persist();closeOverlay('editOverlay');update()});
 $('resetZone').addEventListener('click',()=>{if(editOffset===null)return;delete saved.zones[editOffset];persist();closeOverlay('editOverlay');update()});
 $('editLabel').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveZone').click()});
 // iOS-style picker: snap-to-row columns, 00–23 and 00–59.
